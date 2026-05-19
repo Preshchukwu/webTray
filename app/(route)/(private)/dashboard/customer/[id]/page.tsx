@@ -45,7 +45,6 @@ export default function CustomerDetailPage({
   }
 
   const customer = customers?.find((c) => c.id.toString() === id);
-  console.log(customer);
 
   if (!customer) {
     return (
@@ -68,8 +67,8 @@ export default function CustomerDetailPage({
   const repeatOrderRate = customer?.totalOrders > 0 ? (customer?.totalOrders / customer?.totalSpent) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-6 mt6 p6">
+    <div className="min-h-screen bg-gray-50 pb-8">
+      <div className="mx-4 md:mx-6 mt-6 p-4 md:p-6">
         <div className="space-y-4">
           {/* Header Content */}
           <div className="flex justify-between items-center">
@@ -90,7 +89,7 @@ export default function CustomerDetailPage({
                 </h2>
               </div>
 
-              <p className="font-normal text-[16px] leading-6">
+              <p className="font-normal text-[14px] sm:text-[16px] leading-6">
                 View customer details and purchase history
               </p>
             </div>
@@ -99,35 +98,35 @@ export default function CustomerDetailPage({
       </div>
 
       {/* Customer Card */}
-      <div className="bg-white mx-6 mt-6 px-6 py-5 rounded-lg border border-gray-200">
-        <div className="flex items-start justify-between mb6">
+      <div className="bg-white mx-4 md:mx-6 mt-6 px-4 md:px-6 py-5 rounded-lg border border-gray-200">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div className="flex items-start gap-4">
-            <Avatar className="w-16 h-16">
+            <Avatar className="w-16 h-16 shrink-0">
               <AvatarFallback className="text-lg font-semibold bg-gray-200 text-gray-700">
                 {customer?.fullname
                   ? customer.fullname.slice(0, 2).toUpperCase()
                   : "NA"}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h2 className="text-[18px] font-medium leading-[100%] text-[#343434]">
+            <div className="min-w-0">
+              <h2 className="text-[18px] font-medium leading-[120%] text-[#343434] break-words">
                 {customer?.fullname}
               </h2>
-              <div className="flex items-center gap-2 mt-2">
-                <Mail className="w-4 h-4 text-[#808080]" />
-                <span className="text-[12px] font-medium leading-[100%] text-[#1A1A1A]">
+              <div className="flex items-center gap-2 mt-2 min-w-0">
+                <Mail className="w-4 h-4 text-[#808080] shrink-0" />
+                <span className="text-[12px] font-medium leading-[120%] text-[#1A1A1A] break-words">
                   {customer?.email}
                 </span>
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <Phone className="w-4 h-4 text-[#808080]" />
-                <span className="text-[12px] font-medium leading-[100%] text-[#1A1A1A]">
+              <div className="flex items-center gap-2 mt-1 min-w-0">
+                <Phone className="w-4 h-4 text-[#808080] shrink-0" />
+                <span className="text-[12px] font-medium leading-[120%] text-[#1A1A1A] break-words">
                   {customer?.phone}
                 </span>
               </div>
-              <div className="flex items-center gap-2 mt-1 text-[#1A1A1A]">
-                <Calendar className="w-4 h-4 text-[#808080]" />
-                <span className="text-[12px] font-medium leading-[100%] text-[#1A1A1A]">
+              <div className="flex items-center gap-2 mt-1 text-[#1A1A1A] min-w-0">
+                <Calendar className="w-4 h-4 text-[#808080] shrink-0" />
+                <span className="text-[12px] font-medium leading-[120%] text-[#1A1A1A]">
                   Member since{" "}
                   {new Date(customer?.createdAt).toLocaleDateString()}
                 </span>
@@ -136,28 +135,28 @@ export default function CustomerDetailPage({
           </div>
 
           {/* Stats */}
-          <div className="flex gap-8">
-            <div className="text-right">
-              <p className="text-[16px] font-bold mb-[8px] text-[#1A1A1A] leading-[100%]">
+          <div className="grid grid-cols-3 gap-2 sm:gap-8 border-t lg:border-t-0 pt-4 lg:pt-0 border-gray-100 w-full lg:w-auto lg:flex lg:flex-row lg:justify-end">
+            <div className="text-left lg:text-right min-w-0">
+              <p className="text-[16px] font-bold mb-[8px] text-[#1A1A1A] leading-[100%] truncate">
                 {customer?.totalOrders}
               </p>
-              <p className="text-sm font-normal leading-[100%] text-[#4D4D4D]">
+              <p className="text-[12px] sm:text-sm font-normal leading-[120%] text-[#4D4D4D]">
                 Total Orders
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-[16px] font-bold mb-[8px] text-[#1A1A1A] leading-[100%]">
+            <div className="text-left lg:text-right min-w-0">
+              <p className="text-[16px] font-bold mb-[8px] text-[#1A1A1A] leading-[100%] truncate">
                 {formatCurrency(customer?.totalSpent)}
               </p>
-              <p className="text-sm font-normal leading-[100%] text-[#4D4D4D]">
+              <p className="text-[12px] sm:text-sm font-normal leading-[120%] text-[#4D4D4D]">
                 Total Spent
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-[16px] font-bold text-[#1A1A1A] leading-[100%] mb-[8px]">
+            <div className="text-left lg:text-right min-w-0">
+              <p className="text-[16px] font-bold text-[#1A1A1A] leading-[100%] mb-[8px] truncate">
                 {formatCurrency(avgOrder)}
               </p>
-              <p className="text-sm font-normal leading-[100%] text-[#4D4D4D]">
+              <p className="text-[12px] sm:text-sm font-normal leading-[120%] text-[#4D4D4D]">
                 Avg. Order
               </p>
             </div>
@@ -166,13 +165,13 @@ export default function CustomerDetailPage({
       </div>
 
       {/* Tabs */}
-      <div className="bg-white mx-6 mt-6 rounded-lg  border-gray-200">
-        <div className="flex justify-between px-2 rounded-lg py-2 items-center border-b bg-[#EBEBEB] border-gray-200">
+      <div className="bg-white mx-4 md:mx-6 mt-6 rounded-lg border-gray-200">
+        <div className="flex overflow-x-auto scrollbar-none whitespace-nowrap justify-start md:justify-between px-2 rounded-lg py-2 items-center border-b bg-[#EBEBEB] border-gray-200 w-full">
           {["overview", "orders", "activity", "preferences"].map((tab) => (
             <Button
               key={tab}
               onClick={() => handleTabChange(tab)}
-              className={`px-8 py-4 font-normal shadow-none text-[#343434] hover:bg-white text-[16px] capitalize transition-colors ${
+              className={`flex-shrink-0 px-4 md:px-8 py-2 md:py-4 font-normal shadow-none text-[#343434] hover:bg-white text-[14px] md:text-[16px] capitalize transition-colors ${
                 activeTab === tab
                   ? "bg-white"
                   : "bg-[#EBEBEB] border-0 shadow-0"
@@ -184,11 +183,11 @@ export default function CustomerDetailPage({
         </div>
 
         {/* Tab Content */}
-        <div className="py-6 bg-gray-50">
+        <div className="py-6 px-4 md:px-6 bg-gray-50">
           {activeTab === "overview" && (
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Contact Information */}
-              <Card className=" shadow-none p-2">
+              <Card className="shadow-none p-2 w-full">
                 <CardHeader className="p-2">
                   <CardTitle className="text-[16px] font-semibold text-gray-900">
                     Contact Information
@@ -196,22 +195,22 @@ export default function CustomerDetailPage({
                   <CardDescription>Customer's contact details</CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-6 p-2">
-                  <div>
+                <CardContent className="space-y-6 p-2 min-w-0">
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Email Address
                     </label>
-                    <p className="text-gray-900 mt-1">{customer?.email}</p>
+                    <p className="text-gray-900 mt-1 break-all">{customer?.email}</p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Phone Number
                     </label>
-                    <p className="text-gray-900 mt-1">{customer?.phone}</p>
+                    <p className="text-gray-900 mt-1 break-all">{customer?.phone}</p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Joined Date
                     </label>
@@ -221,11 +220,11 @@ export default function CustomerDetailPage({
                     </p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Address
                     </label>
-                    <p className="text-gray-900 mt-1">
+                    <p className="text-gray-900 mt-1 break-words">
                       {customer?.address || "No Address"}
                     </p>
                   </div>
@@ -233,7 +232,7 @@ export default function CustomerDetailPage({
               </Card>
 
               {/* Customer Metrics */}
-              <Card className=" shadow-none p-2">
+              <Card className="shadow-none p-2 w-full">
                 <CardHeader className="p-2">
                   <CardTitle className="text-[16px] font-semibold text-gray-900">
                     Customer's Metrics
@@ -241,22 +240,22 @@ export default function CustomerDetailPage({
                   <CardDescription>Key performance indicators</CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-6 p-2">
-                  <div>
+                <CardContent className="space-y-6 p-2 min-w-0">
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Lifetime Value
                     </label>
                     <p className="text-gray-900 mt-1 text-lg">{formatCurrency(customer?.totalSpent)}</p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Repeat Order Rate
                     </label>
                     <p className="text-gray-900 mt-1 text-lg">{repeatOrderRate.toFixed(2)}%</p>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-sm font-medium text-gray-700">
                       Last Order
                     </label>
@@ -276,19 +275,19 @@ export default function CustomerDetailPage({
           )}
 
           {activeTab === "activity" && (
-            <div className="py-6 border border-gray-200 rounded-lg mx-6">
-              <div className="px-4 py-2">
-                <h2 className="text-[16px] font-semibold text-gray-900 mb4">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-[16px] font-semibold text-gray-900">
                   Recent Activity
                 </h2>
-                <p className=" ">Customer interactions and activities</p>
+                <p className="text-sm text-gray-500">Customer interactions and activities</p>
               </div>
               <CustomerActivityList customerId={customer?.id} />
             </div>
           )}
 
           {activeTab === "preferences" && (
-            <div className="text-center py-8 text-gray-600">
+            <div className="text-center py-8 text-gray-600 bg-white rounded-lg border border-gray-200">
               <p>soon...</p>
             </div>
           )}

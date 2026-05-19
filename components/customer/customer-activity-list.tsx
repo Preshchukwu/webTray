@@ -84,10 +84,10 @@ export default function CustomerActivityList({
                 </Avatar>
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="text-sm">
-                    <div className="font-medium text-gray-800">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                  <div className="text-sm min-w-0">
+                    <div className="font-medium text-gray-800 break-words">
                       Placed order #{order.id} for {formatCurrency(Number(order.totalAmount))}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
@@ -95,12 +95,12 @@ export default function CustomerActivityList({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Link href={`/dashboard/order/${order.id}`}>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link href={`/dashboard/order/${order.id}`} className="w-full sm:w-auto">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="rounded-full px-4 h-8 text-[#676767] border-gray-200 flex items-center gap-2"
+                        className="rounded-full px-4 h-8 text-[#676767] border-gray-200 flex items-center gap-2 w-full sm:w-auto justify-center"
                       >
                         <Eye className="h-4 w-4 text-[#999999]" />
                         View

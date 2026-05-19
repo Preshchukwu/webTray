@@ -93,18 +93,18 @@ export default function OrderDetailsClient() {
           <Link href="/dashboard/order" className="hover:text-gray-700">Orders</Link>
           <span> / Order details</span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div className="flex items-center">
-            <button onClick={() => router.back()} className="p2 hover:bg-gray-100 rounded-full transition-colors">
+            <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
               <ArrowLeft className="w-6 h-6 text-[#4D4D4D] mr-2" />
             </button>
-            <h1 className="text-xl md:text-[20px] font-bold text-[#4D4D4D]">Order Details</h1>
+            <h1 className="text-xl sm:text-[20px] font-bold text-[#4D4D4D]">Order Details</h1>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 disabled={isUpdatingOrder} 
-                className="bg-[#1A1A1A] hover:bg-black text-white text-[14px] rounded-full px-[15px] py-[8px] h-auto font-regular"
+                className="bg-[#1A1A1A] hover:bg-black text-white text-[14px] rounded-full px-[15px] py-[8px] h-auto font-regular w-full sm:w-auto"
               >
                 {isUpdatingOrder ? (
                   <>
@@ -116,7 +116,7 @@ export default function OrderDetailsClient() {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-[16px]">
+            <DropdownMenuContent align="end" className="w-full sm:w-56 rounded-[16px]">
               <DropdownMenuRadioGroup value={order.status} onValueChange={handleStatusChange}>
                 <DropdownMenuRadioItem value="pending">Order Placed</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="paid">Payment Confirmed</DropdownMenuRadioItem>
