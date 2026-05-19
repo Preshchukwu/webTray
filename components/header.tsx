@@ -74,36 +74,29 @@ export default function Header() {
                   Dashboard
                 </Button>
               ) : (
-                <Button 
-                  size="lg" 
-                  className="rounded-full bg-[#111827] hover:bg-[#30343e] font-medium text-[16px] text-white px-[16px] py-[14px]"
-                  onClick={() => router.push("/wait-list")}
-                >
-                  Join Waitlist
-                </Button>
+                <>
+                  <Button 
+                    size="lg" 
+                    variant="link" 
+                    className="font-medium text-[16px] hover:text-[#1A1A1A]"
+                    asChild
+                  >
+                    <Link href="/signin">
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    className="rounded-full bg-[#111827] hover:bg-[#30343e] font-medium text-[16px] text-white px-[16px] py-[14px]"
+                    asChild
+                  >
+                    <Link href="/signup">
+                      Get Started for Free
+                    </Link>
+                  </Button>
+                </>
               )}
             </div>
-            {/* <div className="hidden md:flex items-center space-x-4">
-              <Button 
-                size="lg" 
-                variant="link" 
-                className="font-medium text-[16px] hover:text-[#1A1A1A]"
-                asChild
-              >
-                <Link href="/signin">
-                  Sign In
-                </Link>
-              </Button>
-              <Button 
-                size="lg" 
-                className="rounded-full bg-[#111827] hover:bg-[#30343e] font-medium text-[16px] text-white px-[16px] py-[14px]"
-                asChild
-              >
-                <Link href="/signup">
-                  Get Started for Free
-                </Link>
-              </Button>
-            </div> */}
             
             <button 
               className="md:hidden p-2 text-[#4D4D4D] z-[60]" 
@@ -161,29 +154,6 @@ export default function Header() {
                 </nav>
                 
                 <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200">
-                  {/* <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="w-full font-medium text-[16px]"
-                    asChild
-                  >
-                    <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
-                      Sign In
-                    </Link>
-                  </Button>
-                  <Button 
-                    Sign In
-                  </Button> */}
-                  {/* <Button 
-                    size="lg" 
-                    className="w-full rounded-full bg-[#111827] hover:bg-[#30343e] font-medium text-[16px] text-white"
-                    asChild
-                  >
-                    <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                      Get Started for Free
-                    </Link>
-                    Get Started for Free
-                  </Button> */}
                   {!_hasHydrated ? (
                     <div className="h-10 w-full animate-pulse rounded-full bg-gray-100" />
                   ) : user ? (
@@ -198,16 +168,27 @@ export default function Header() {
                       Dashboard
                     </Button>
                   ) : (
-                    <Button 
-                      size="lg" 
-                      className="w-full rounded-full bg-[#111827] hover:bg-[#30343e] font-medium text-[16px] text-white"
-                      onClick={() => {
-                        setMobileMenuOpen(false)
-                        router.push("/wait-list")
-                      }}
-                    >
-                      Join Waitlist
-                    </Button>
+                    <>
+                      <Button 
+                        size="lg" 
+                        variant="outline" 
+                        className="w-full font-medium text-[16px]"
+                        asChild
+                      >
+                        <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
+                          Sign In
+                        </Link>
+                      </Button>
+                      <Button 
+                        size="lg" 
+                        className="w-full rounded-full bg-[#111827] hover:bg-[#30343e] font-medium text-[16px] text-white"
+                        asChild
+                      >
+                        <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                          Get Started for Free
+                        </Link>
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>

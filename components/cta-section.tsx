@@ -15,12 +15,9 @@ export function CTASection() {
             </h2>
             <p className="text-white/90 text-lg mb-8 text-pretty">Takes less than 5 minutes to set up.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => router.push("/")} className="bg-white text-purple-600 hover:bg-gray-100 cursor-pointer text-[16px] font-normal rounded-full px-[16px] py-[14px]">
-                Join Waitlist
-              </Button>
-              {/* <Button size="lg" onClick={() => router.push("/signup")} className="bg-white text-purple-600 hover:bg-gray-100 cursor-pointer text-[16px] font-normal rounded-full px-[16px] py-[14px]">
+              <Button size="lg" onClick={() => router.push("/signup")} className="bg-white text-purple-600 hover:bg-gray-100 cursor-pointer text-[16px] font-normal rounded-full px-[16px] py-[14px]">
                 Sign Up for Free
-              </Button> */}
+              </Button>
               <Button
                 size="lg"
                 variant="outline"

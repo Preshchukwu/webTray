@@ -27,9 +27,10 @@ export default function Hero() {
           <Button
             size="lg"
             className="bg-[#111827] hover:bg-[#30343e] rounded-full text-white px-[16px] py-[14px]"
+            asChild
           >
-            <Link href="/wait-list">
-              <span className="text-nowrap text-white">Join Waitlist</span>
+            <Link href="/signup">
+              Sign Up for Free
             </Link>
           </Button>
           <Button
@@ -39,12 +40,6 @@ export default function Hero() {
           >
             Contact for Enquiries
           </Button>
-          {/* <Button size="lg" className="bg-[#111827] hover:bg-[#30343e] rounded-full text-white px-[16px] py-[14px]">
-            Sign Up for Free
-          </Button>
-          <Button size="lg" variant="outline" className="rounded-full text-[16px] text-[#111827] px-[16px] py-[14px]">
-            Contact for Enquiries
-          </Button> */}
         </div>
 
         <Image

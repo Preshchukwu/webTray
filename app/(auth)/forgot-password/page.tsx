@@ -71,12 +71,19 @@ export default function Component() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="p-4">
-        <div className="flex items-center gap-2">
-          <Image src="/webtraylogo.png" width={140} height={40} alt="logo" />
-        </div>
+        <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+          <Image 
+            src="/webtraylogo.png" 
+            width={140} 
+            height={40} 
+            alt="logo" 
+            className="w-[120px] sm:w-[140px] h-auto"
+            priority
+          />
+        </Link>
       </div>
 
-      <div className="flex-col flex items-center justify-start w-[40%] mx-auto ">
+      <div className="flex-col flex items-center justify-start w-full max-w-md px-6 sm:px-0 md:w-[40%] mx-auto">
 
         {showSuccessAlert && submitSuccess && (
           <CustomAlert
