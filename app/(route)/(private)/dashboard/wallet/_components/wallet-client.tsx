@@ -433,7 +433,7 @@ function TransactionHistory() {
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function WalletClient() {
   return (
-    <div className="flex flex-col gap-6 py-4 md:py-6 max-w-6xl w-full">
+    <div className="flex flex-col gap-6 py-4 md:py-6 w-full">
       <BalanceCard />
 
       <div className="flex flex-col md:flex-row gap-6">

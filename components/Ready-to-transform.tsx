@@ -22,7 +22,7 @@ const ReadyToSection = () => {
                           <Button
                             size="lg"
                             variant="outline"
-                            onClick={() => router.push('/contact-us-page')}
+                            onClick={() => router.push('/contact-us')}
                             className="border-2 border-white text-white hover:bg-white/10 bg-transparent cursor-pointer text-[16px] font-normal rounded-full px-[16px] py-[14px]"
                           >
                             Contact for Enquiries

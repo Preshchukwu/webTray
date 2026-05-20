@@ -37,8 +37,11 @@ export default function Hero() {
             size="lg"
             variant="outline"
             className="rounded-full text-[16px] text-[#111827] px-[16px] py-[14px]"
+            asChild
           >
-            Contact for Enquiries
+            <Link href="/contact-us">
+              Contact for Enquiries
+            </Link>
           </Button>
         </div>
 

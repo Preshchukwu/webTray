@@ -105,7 +105,7 @@ export function SubscriptionClient() {
 
   if (isFetchingPlans || isFetchingSubscription) {
     return (
-      <div className="flex flex-col gap-8 p-6 md:p-8 max-w-6xl w-full">
+      <div className="flex flex-col gap-8 p-6 md:p-8 w-full">
         <Skeleton className="h-4 w-20 mb-2 bg-gray-200" />
         
         {/* Banner Skeleton */}
@@ -159,7 +159,7 @@ export function SubscriptionClient() {
   const currentPlan = sortedPlans.find(p => p.tier === subscription?.tier);
 
   return (
-    <div className="flex flex-col gap-8 p-2 md:p-2 max-w-6xl w-full relative">
+    <div className="flex flex-col gap-8 p-2 md:p-2 w-full relative">
       {isVerifying && (
         <div className="fixed inset-0 bg-white/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
