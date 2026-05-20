@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { Upload, Trash2, Phone, Mail, Globe, Clock, MapPin, AtSign } from "lucide-react"
+import { SettingsPageHeader } from "../../_components/settings-page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,18 +31,11 @@ export function BusinessClient() {
 
   return (
     <div className="flex flex-col gap-6 max-w-[1000px]">
-      {/* Breadcrumbs & Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-1 text-[12px] font-regular text-[#676767]">
-          <Link href="/dashboard/settings" className="hover:text-[#365BEB] transition-colors">
-            Settings
-          </Link>
-          <span className="mx-1">/</span>
-          <span>Business Setting</span>
-        </div>
-        <h1 className="text-[16px] leading-[24px] md:text-[20px] font-bold text-[#4D4D4D]">Business Settings</h1>
-        <p className="text-[#4D4D4D] text-[14px] leading-[24px] font-regular md:text-[16px]">Configure your business information and store details</p>
-      </div>
+      <SettingsPageHeader
+        segment="Business Setting"
+        title="Business Settings"
+        description="Configure your business information and store details"
+      />
 
       <div className="bg-white rounded-[20px] shadow-sm p-8 flex flex-col gap-10">
         {/* Business Information Section */}

@@ -1,26 +1,19 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { CreditCard, Plus, Trash2 } from "lucide-react"
+import { SettingsPageHeader } from "../../_components/settings-page-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
 export function PaymentClient() {
   return (
     <div className="flex flex-col gap-8 max-w-[1000px]">
-      {/* Breadcrumbs & Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-1 text-[12px] font-regular text-[#676767]">
-          <Link href="/dashboard/settings" className="hover:text-[#365BEB] transition-colors">
-            Settings
-          </Link>
-          <span className="mx-1">/</span>
-          <span>Payment Setting</span>
-        </div>
-        <h1 className="text-[16px] leading-[24px] md:text-[20px] font-bold text-[#4D4D4D]">Payment Settings</h1>
-        <p className="text-[#4D4D4D] text-[14px] leading-[24px] font-regular md:text-[16px]">Manage payment methods, gateways, and processing</p>
-      </div>
+      <SettingsPageHeader
+        segment="Payment Setting"
+        title="Payment Settings"
+        description="Manage payment methods, gateways, and processing"
+      />
 
       <Card className="border-none shadow-sm rounded-[20px] bg-white overflow-hidden">
         <CardContent className="p-8 flex flex-col gap-8">

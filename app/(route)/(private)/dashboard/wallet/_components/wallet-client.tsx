@@ -23,9 +23,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useWallet } from "@/hooks/use-wallet";
+import { formatCurrency } from "@/lib/format-currency";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_BALANCE = 125000;
+// ─── Mock data (payment link, virtual account, transactions — API pending) ───
 const MOCK_PAYMENT_LINK = "https://pay.webtray.co/precious-store";
 const MOCK_VIRTUAL_ACCOUNT = {
   bankName: "Providus Bank",
@@ -112,11 +114,7 @@ const FILTER_OPTIONS = ["All", "Credit", "Debit", "Pending", "Failed"];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatAmount(amount: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return formatCurrency(amount);
 }
 
 function useCopy(value: string, label: string) {
@@ -149,7 +147,15 @@ function StatusBadge({ status }: { status: "success" | "pending" | "failed" }) {
   );
 }
 
-function BalanceCard() {
+function BalanceCard({
+  balance,
+  isLoading,
+  hasError,
+}: {
+  balance: number;
+  isLoading: boolean;
+  hasError: boolean;
+}) {
   const [visible, setVisible] = useState(true);
 
   return (
@@ -160,6 +166,7 @@ function BalanceCard() {
           <button
             onClick={() => setVisible((v) => !v)}
             className="text-blue-200 hover:text-white transition-colors"
+            disabled={isLoading}
           >
             {visible ? (
               <EyeOff className="w-4 h-4" />
@@ -168,10 +175,16 @@ function BalanceCard() {
             )}
           </button>
         </div>
-        <p className="text-white text-[32px] md:text-[40px] font-bold leading-tight tracking-tight">
-          {visible ? formatAmount(MOCK_BALANCE) : "₦ ••••••"}
+        {isLoading ? (
+          <Skeleton className="h-10 w-48 bg-white/20" />
+        ) : (
+          <p className="text-white text-[32px] md:text-[40px] font-bold leading-tight tracking-tight">
+            {visible ? formatCurrency(balance) : "₦ ••••••"}
+          </p>
+        )}
+        <p className="text-blue-200 text-sm">
+          {hasError ? "Could not load balance" : "Available balance"}
         </p>
-        <p className="text-blue-200 text-sm">Available balance</p>
       </div>
 
       <div className="flex flex-row md:flex-col gap-3 md:justify-center">
@@ -432,9 +445,16 @@ function TransactionHistory() {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function WalletClient() {
+  const { walletBalance, isFetchingBalance, balanceError } = useWallet();
+  const balance = Number(walletBalance?.balance ?? 0);
+
   return (
     <div className="flex flex-col gap-6 py-4 md:py-6 w-full">
-      <BalanceCard />
+      <BalanceCard
+        balance={balance}
+        isLoading={isFetchingBalance}
+        hasError={!!balanceError}
+      />
 
       <div className="flex flex-col md:flex-row gap-6">
         <PaymentLinkCard />
