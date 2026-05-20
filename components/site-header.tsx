@@ -1,13 +1,14 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { User, Settings, Bell, Zap, TrendingUp, Briefcase } from "lucide-react";
+import { User, Settings, Zap, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 // import SearchComponent from "@/components/search-component";
 import { StoreSwitcher } from "./StoreSwitcher";
 import { useSubscription } from "@/hooks/use-subscription";
 import { cn } from "@/lib/utils";
+import { NotificationPanel } from "./notification-panel";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -44,9 +45,9 @@ export function SiteHeader() {
             <Link href="/profile" aria-label="Profile">
               <User className={pathname.startsWith("/profile") ? "text-[#365BEB]" : "text-[#808080]"} />
             </Link>
-            <Link href="/notification" aria-label="Notification">
-              <Bell className={pathname.startsWith("/notification") ? "text-[#365BEB]" : "text-[#808080]"} />
-            </Link>
+            <NotificationPanel
+              bellClassName={pathname.startsWith("/notification") ? "text-[#365BEB]" : "text-[#808080]"}
+            />
           </div>
 
           {/* Mobile Trigger on Right */}

@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ShoppingCart, Package } from 'lucide-react';
+import { ShoppingCart, Package, Share2 } from 'lucide-react';
 import { Product } from '@/hooks/use-customer-store';
+import { ProductShareSheet } from './product-share-sheet';
 
 interface ProductCardProps {
   product: Product;
@@ -15,14 +16,16 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart }) => {
   const router = useRouter();
   const isOutOfStock = product.quantity === 0;
+  const [shareOpen, setShareOpen] = useState(false);
 
   const handleViewDetails = () => {
     router.push(`/store/${slug}/product/${product.id}`);
   };
 
   return (
-    <div 
-      className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+    <>
+    <div
+      className="group bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
       onClick={handleViewDetails}
     >
       <div className="relative h-48 bg-gray-100 flex items-center justify-center">
@@ -48,6 +51,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart })
             Featured
           </span>
         )}
+        <button
+          onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
+          className="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-sm flex items-center justify-center text-gray-600 hover:text-[#365BEB] hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+          aria-label="Share product"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       <div className="p-4">
@@ -103,6 +113,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart })
         </div>
       </div>
     </div>
+    <ProductShareSheet
+      open={shareOpen}
+      onClose={() => setShareOpen(false)}
+      product={product}
+      slug={slug}
+    />
+    </>
   );
 };
 

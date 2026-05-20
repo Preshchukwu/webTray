@@ -26,6 +26,8 @@ import { useCategory } from "@/hooks/use-category";
 import { capitalizeFirstLetter } from "@/lib/capitalize";
 import { EditForm } from "@/types";
 import { TableSkeleton } from "../table-skeleton";
+import { useActiveStore } from "@/hooks/use-active-store";
+import { ProductShareSheet } from "@/components/product-share-sheet";
 
 export default function ProductsTable() {
   const {
@@ -50,6 +52,12 @@ export default function ProductsTable() {
     open: false,
     product: null,
   });
+  const [shareDialog, setShareDialog] = useState<{
+    open: boolean;
+    product: Product | null;
+  }>({ open: false, product: null });
+
+  const { activeStore } = useActiveStore();
 
   const handleEditClick = (product: Product) => {
     setEditingProduct(product.id);
@@ -105,6 +113,10 @@ export default function ProductsTable() {
     setDeleteDialog({ open: false, product: null });
   };
 
+  const handleShareClick = (product: Product) => {
+    setShareDialog({ open: true, product });
+  };
+
   // Create category lookup for sorting and display
   const categoryLookup =
     categories?.reduce((acc, category) => {
@@ -116,6 +128,7 @@ export default function ProductsTable() {
   const columnHandlers: ColumnHandlers = {
     handleEdit: handleEditClick,
     handleDelete: handleDeleteClick,
+    handleShare: handleShareClick,
     handleEditSave,
     handleEditCancel,
     editingProduct,
@@ -195,6 +208,14 @@ export default function ProductsTable() {
           <DataTable columns={columns} data={formattedProducts} meta={columnHandlers} />
         </div>
       </div>
+
+      <ProductShareSheet
+        open={shareDialog.open}
+        onClose={() => setShareDialog({ open: false, product: null })}
+        product={shareDialog.product}
+        slug={activeStore?.slug}
+        storeName={activeStore?.storeName}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog

@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ColumnDef } from "@tanstack/react-table";
-import { SquarePen, Trash2, Check, X, Loader2 } from "lucide-react";
+import { SquarePen, Trash2, Check, X, Loader2, Share2 } from "lucide-react";
 import { Category, EditForm } from "@/types";
 import {
   Select,
@@ -28,6 +28,7 @@ export type Product = {
 export interface ColumnHandlers {
   handleEdit: (product: Product) => void;
   handleDelete: (product: Product) => void;
+  handleShare: (product: Product) => void;
   handleEditSave: (productId: number) => void;
   handleEditCancel: () => void;
   editingProduct: number | null;
@@ -253,6 +254,15 @@ export const createColumns = (
               </>
             ) : (
               <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-500 hover:text-[#365BEB]"
+                  onClick={() => handlers.handleShare(product)}
+                  title="Share product"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
