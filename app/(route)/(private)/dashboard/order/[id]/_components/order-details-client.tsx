@@ -27,7 +27,7 @@ import Link from "next/link";
 export default function OrderDetailsClient() {
   const { id } = useParams();
   const router = useRouter();
-  const { useOrderQuery, updateOrder, isUpdatingOrder } = useOrder();
+  const { useOrderQuery, updateOrderStatus, isUpdatingOrder } = useOrder();
   const { data: orderDetail, isLoading, error } = useOrderQuery(Number(id));
 
   const order = orderDetail?.order;
@@ -38,7 +38,7 @@ export default function OrderDetailsClient() {
   const handleStatusChange = async (newStatus: string) => {
     if (order?.id) {
       try {
-        await updateOrder(order.id, { status: newStatus });
+        await updateOrderStatus(order.id, newStatus);
       } catch (err) {
         console.error("Failed to update status", err);
       }
