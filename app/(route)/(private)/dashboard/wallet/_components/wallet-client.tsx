@@ -23,92 +23,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useWallet } from "@/hooks/use-wallet";
+import {
+  useWallet,
+  type WalletTransactionStatus,
+} from "@/hooks/use-wallet";
 import { formatCurrency } from "@/lib/format-currency";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WithdrawalBankAccounts } from "./withdrawal-bank-accounts";
+import WalletPageSkeleton from "@/components/wallet-page-skeleton";
+import { PageHeader } from "@/components/page-header";
 
-// ─── Mock data (payment link, virtual account, transactions — API pending) ───
+// ─── Mock data (payment link — API pending) ───
 const MOCK_PAYMENT_LINK = "https://pay.webtray.co/precious-store";
-const MOCK_VIRTUAL_ACCOUNT = {
-  bankName: "Providus Bank",
-  accountNumber: "9901234567",
-  accountName: "Precious Store",
-};
-
-const MOCK_TRANSACTIONS = [
-  {
-    id: "TXN-001",
-    date: "May 2, 2026",
-    description: "Payment received from customer",
-    reference: "REF-78291",
-    type: "credit" as const,
-    amount: 15000,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-002",
-    date: "Apr 30, 2026",
-    description: "Withdrawal to bank account",
-    reference: "REF-78105",
-    type: "debit" as const,
-    amount: 20000,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-003",
-    date: "Apr 28, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77984",
-    type: "credit" as const,
-    amount: 8500,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-004",
-    date: "Apr 25, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77821",
-    type: "credit" as const,
-    amount: 32000,
-    status: "pending" as const,
-  },
-  {
-    id: "TXN-005",
-    date: "Apr 22, 2026",
-    description: "Withdrawal to bank account",
-    reference: "REF-77603",
-    type: "debit" as const,
-    amount: 10000,
-    status: "failed" as const,
-  },
-  {
-    id: "TXN-006",
-    date: "Apr 20, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77490",
-    type: "credit" as const,
-    amount: 5500,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-007",
-    date: "Apr 17, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77301",
-    type: "credit" as const,
-    amount: 12000,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-008",
-    date: "Apr 15, 2026",
-    description: "Withdrawal to bank account",
-    reference: "REF-77120",
-    type: "debit" as const,
-    amount: 18000,
-    status: "success" as const,
-  },
-];
 
 const FILTER_OPTIONS = ["All", "Credit", "Debit", "Pending", "Failed"];
 
@@ -129,11 +55,11 @@ function useCopy(value: string, label: string) {
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: "success" | "pending" | "failed" }) {
-  const map = {
-    success: "bg-green-100 text-green-700",
-    pending: "bg-yellow-100 text-yellow-700",
-    failed: "bg-red-100 text-red-700",
+function StatusBadge({ status }: { status: WalletTransactionStatus }) {
+  const map: Record<WalletTransactionStatus, string> = {
+    SUCCESS: "bg-green-100 text-green-700",
+    PENDING: "bg-yellow-100 text-yellow-700",
+    FAILED: "bg-red-100 text-red-700",
   };
   return (
     <span
@@ -142,19 +68,29 @@ function StatusBadge({ status }: { status: "success" | "pending" | "failed" }) {
         map[status]
       )}
     >
-      {status}
+      {status.toLowerCase()}
     </span>
   );
+}
+
+function formatTransactionDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function BalanceCard({
   balance,
   isLoading,
   hasError,
+  onWithdraw,
 }: {
   balance: number;
   isLoading: boolean;
   hasError: boolean;
+  onWithdraw?: () => void;
 }) {
   const [visible, setVisible] = useState(true);
 
@@ -192,7 +128,11 @@ function BalanceCard({
           <ArrowDownToLine className="w-4 h-4" />
           Fund Wallet
         </Button>
-        <Button className="bg-blue-700 border border-blue-400/40 text-white hover:bg-blue-800 rounded-full px-6 font-semibold shadow-md gap-2 transition-all">
+        <Button
+          type="button"
+          onClick={onWithdraw}
+          className="bg-blue-700 border border-blue-400/40 text-white hover:bg-blue-800 rounded-full px-6 font-semibold shadow-md gap-2 transition-all"
+        >
           <ArrowUpFromLine className="w-4 h-4" />
           Withdraw
         </Button>
@@ -257,74 +197,26 @@ function PaymentLinkCard() {
   );
 }
 
-function VirtualAccountCard() {
-  const { accountNumber, accountName, bankName } = MOCK_VIRTUAL_ACCOUNT;
-  const details = `Bank: ${bankName}\nAccount Number: ${accountNumber}\nAccount Name: ${accountName}`;
-  const { copied, copy } = useCopy(details, "Account details");
-
-  return (
-    <Card className="rounded-[24px] border border-gray-200 shadow-sm flex-1">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-[16px] font-bold text-[#111827]">
-          Virtual Account
-        </CardTitle>
-        <p className="text-sm text-[#808080]">
-          Customers can transfer directly to this account number.
-        </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm text-[#808080]">Bank Name</span>
-            <span className="text-sm font-semibold text-[#111827]">
-              {bankName}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm text-[#808080]">Account Number</span>
-            <span className="text-[16px] font-bold text-[#111827] tracking-widest">
-              {accountNumber}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm text-[#808080]">Account Name</span>
-            <span className="text-sm font-semibold text-[#111827]">
-              {accountName}
-            </span>
-          </div>
-        </div>
-        <Button
-          onClick={copy}
-          variant="outline"
-          className="w-full rounded-full border-gray-300 text-[#4D4D4D] hover:bg-gray-50 gap-2 transition-all"
-        >
-          {copied ? (
-            <Check className="w-4 h-4 text-green-600" />
-          ) : (
-            <Copy className="w-4 h-4" />
-          )}
-          {copied ? "Copied!" : "Copy Account Details"}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
 function TransactionHistory() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const {
+    transactions,
+    isFetchingTransactions,
+    transactionsError,
+  } = useWallet();
 
-  const filtered = MOCK_TRANSACTIONS.filter((tx) => {
+  const filtered = (transactions ?? []).filter((tx) => {
     const matchesSearch =
       tx.description.toLowerCase().includes(search.toLowerCase()) ||
       tx.reference.toLowerCase().includes(search.toLowerCase());
 
     const matchesFilter =
       filter === "All" ||
-      (filter === "Credit" && tx.type === "credit") ||
-      (filter === "Debit" && tx.type === "debit") ||
-      (filter === "Pending" && tx.status === "pending") ||
-      (filter === "Failed" && tx.status === "failed");
+      (filter === "Credit" && tx.type === "CREDIT") ||
+      (filter === "Debit" && tx.type === "DEBIT") ||
+      (filter === "Pending" && tx.status === "PENDING") ||
+      (filter === "Failed" && tx.status === "FAILED");
 
     return matchesSearch && matchesFilter;
   });
@@ -395,7 +287,24 @@ function TransactionHistory() {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {isFetchingTransactions ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b border-gray-50">
+                  <td colSpan={5} className="py-4">
+                    <Skeleton className="h-4 w-full" />
+                  </td>
+                </tr>
+              ))
+            ) : transactionsError ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="py-12 text-center text-sm text-red-500"
+                >
+                  Could not load transactions. Please try again.
+                </td>
+              </tr>
+            ) : filtered.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -411,7 +320,7 @@ function TransactionHistory() {
                   className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
                 >
                   <td className="py-4 pr-4 text-sm text-[#4D4D4D] whitespace-nowrap">
-                    {tx.date}
+                    {formatTransactionDate(tx.createdAt)}
                   </td>
                   <td className="py-4 pr-4 text-sm text-[#111827]">
                     {tx.description}
@@ -422,13 +331,13 @@ function TransactionHistory() {
                   <td
                     className={cn(
                       "py-4 pr-4 text-sm font-semibold text-right whitespace-nowrap",
-                      tx.type === "credit"
+                      tx.type === "CREDIT"
                         ? "text-green-600"
                         : "text-[#111827]"
                     )}
                   >
-                    {tx.type === "credit" ? "+" : "-"}
-                    {formatAmount(tx.amount)}
+                    {tx.type === "CREDIT" ? "+" : "-"}
+                    {formatAmount(Number(tx.amount))}
                   </td>
                   <td className="py-4 text-right">
                     <StatusBadge status={tx.status} />
@@ -445,23 +354,58 @@ function TransactionHistory() {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function WalletClient() {
-  const { walletBalance, isFetchingBalance, balanceError } = useWallet();
+  const {
+    walletBalance,
+    isFetchingBalance,
+    balanceError,
+    isFetchingTransactions,
+    isFetchingBankAccounts,
+  } = useWallet();
   const balance = Number(walletBalance?.balance ?? 0);
+  const [addBankDialogOpen, setAddBankDialogOpen] = useState(false);
+
+
 
   return (
-    <div className="flex flex-col gap-6 py-4 md:py-6 w-full">
-      <BalanceCard
-        balance={balance}
-        isLoading={isFetchingBalance}
-        hasError={!!balanceError}
+    <>
+      
+      <PageHeader
+        title="Wallet"
+        subtitle="View your account balance, transaction history and manage withdrawal bank accounts."
       />
+
+      {isFetchingBalance ? (
+        <div className="bg-[#365BEB]/10 my-6 rounded-[24px] p-6 md:p-8 flex flex-col md:flex-row justify-between gap-6 animate-pulse">
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-4 w-28 bg-white/20" />
+            <Skeleton className="h-10 w-48 bg-white/20" />
+            <Skeleton className="h-4 w-32 bg-white/20" />
+          </div>
+          <div className="flex flex-row md:flex-col gap-3 md:justify-center">
+            <Skeleton className="h-10 w-32 rounded-full bg-white/20" />
+            <Skeleton className="h-10 w-32 rounded-full bg-white/20" />
+          </div>
+        </div>
+      ) : (
+        <BalanceCard
+          balance={balance}
+          isLoading={isFetchingBalance}
+          hasError={!!balanceError}
+          onWithdraw={() => setAddBankDialogOpen(true)}
+        />
+      )}
+
 
       <div className="flex flex-col md:flex-row gap-6">
         <PaymentLinkCard />
-        <VirtualAccountCard />
+        <WithdrawalBankAccounts
+          className="flex-1 min-w-0"
+          addDialogOpen={addBankDialogOpen}
+          onAddDialogOpenChange={setAddBankDialogOpen}
+        />
       </div>
 
       <TransactionHistory />
-    </div>
+    </>
   );
 }

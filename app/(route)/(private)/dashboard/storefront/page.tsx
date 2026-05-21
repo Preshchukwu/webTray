@@ -106,7 +106,7 @@ export default function Page() {
 
   const customDomain = storeInfo?.store?.customDomain || defaultDomain;
   const storeSlug = storeInfo?.store?.slug || activeStore.slug;
-  const storeUrl = typeof window !== 'undefined' ? `${window.location.origin}/store/${storeSlug}` : "";
+  const storeUrl = typeof window !== 'undefined' ? `${window.location.origin}/${storeSlug}` : "";
 
   const handleCopyUrl = () => {
     if (!storeUrl) return;
@@ -237,7 +237,7 @@ export default function Page() {
                 </Badge>
                 <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                   <Link 
-                    href={`/store/${storeSlug}`} 
+                    href={`/${storeSlug}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className={`flex items-center gap-1.5 min-w-0 flex-1 hover:no-underline group ${!isStoreOnline && "line-through text-gray-400 decoration-2 decoration-red-500"}`}

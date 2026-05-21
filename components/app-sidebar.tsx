@@ -11,6 +11,7 @@ import {
   IconWallet,
 } from "@tabler/icons-react"
 import { useAuthStore } from "@/store/useAuthStore"
+import { usePlanAccess, INVENTORY_PATH } from "@/hooks/use-plan-access"
 // import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 // import { NavSecondary } from "@/components/nav-secondary"
@@ -76,6 +77,14 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuthStore()
   const { isMobile } = useSidebar()
+  const { isInventoryLocked } = usePlanAccess()
+
+  const navMain = data.navMain.map((item) =>
+    item.url === INVENTORY_PATH
+      ? { ...item, locked: isInventoryLocked }
+      : item
+  )
+
   return (
     <Sidebar className="" collapsible="offcanvas" {...props}>
       {!isMobile ? (
@@ -100,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarHeader>
       )}
       <SidebarContent className={isMobile ? "flex-none" : ""}>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter className={isMobile ? "mt-10" : ""}>
         {user && <NavUser user={user} />}

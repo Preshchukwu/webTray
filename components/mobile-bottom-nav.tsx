@@ -9,23 +9,58 @@ import {
   IconShoppingCart, 
   IconDotsVertical 
 } from "@tabler/icons-react"
+import { Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/components/ui/sidebar"
+import { usePlanAccess, INVENTORY_PATH } from "@/hooks/use-plan-access"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function MobileBottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const { toggleSidebar } = useSidebar()
-  
+  const { isInventoryLocked } = usePlanAccess()
+
+  const showInventoryLockedToast = () => {
+    toast.info("Upgrade your plan to access Inventory", {
+      action: {
+        label: "Upgrade",
+        onClick: () => router.push("/dashboard/subscription"),
+      },
+    })
+  }
+
   const navItems = [
-    { label: "Home", href: "/dashboard", icon: IconLayoutDashboard },
-    { label: "Inventory", href: "/dashboard/inventory", icon: IconPackage },
-    { label: "Orders", href: "/dashboard/order", icon: IconShoppingCart },
+    { label: "Home", href: "/dashboard", icon: IconLayoutDashboard, locked: false },
+    { label: "Inventory", href: INVENTORY_PATH, icon: IconPackage, locked: isInventoryLocked },
+    { label: "Orders", href: "/dashboard/order", icon: IconShoppingCart, locked: false },
   ]
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex h-[80px] items-center justify-around bg-white md:hidden px-4 border-t border-gray-100 pb-2 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
       {navItems.map((item) => {
         const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+
+        if (item.locked) {
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={showInventoryLockedToast}
+              className="flex flex-col items-center gap-1.5 transition-all w-full text-[#808080] opacity-60 cursor-not-allowed"
+            >
+              <div className="relative p-2 rounded-2xl bg-transparent">
+                <item.icon size={24} stroke={2} />
+                <Lock className="absolute -top-0.5 -right-0.5 w-3 h-3 text-[#808080]" />
+              </div>
+              <span className="text-[10px] font-semibold tracking-tight text-[#808080]">
+                {item.label}
+              </span>
+            </button>
+          )
+        }
+
         return (
           <Link 
             key={item.label} 
