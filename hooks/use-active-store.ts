@@ -1,6 +1,6 @@
 // hooks/use-active-store.ts
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 /**
@@ -10,14 +10,16 @@ import { useAuthStore } from "@/store/useAuthStore";
 export function useActiveStore() {
   const { activeStore, stores, user, _hasHydrated, checkAuth } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
+  const hasAttemptedFetch = useRef(false);
 
   useEffect(() => {
     const loadStores = async () => {
       // Wait for hydration
       if (!_hasHydrated) return;
 
-      // If we have a user but no stores, fetch them
-      if (user && stores.length === 0) {
+      // If we have a user but no stores, fetch them (only once)
+      if (user && stores.length === 0 && !hasAttemptedFetch.current) {
+        hasAttemptedFetch.current = true;
         try {
           await checkAuth();
         } catch (error) {
@@ -29,7 +31,7 @@ export function useActiveStore() {
     };
 
     loadStores();
-  }, [_hasHydrated, user, stores.length, checkAuth]);
+  }, [_hasHydrated, user, checkAuth, stores.length]);
 
   return {
     activeStore,

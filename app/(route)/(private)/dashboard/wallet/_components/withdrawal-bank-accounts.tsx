@@ -181,14 +181,6 @@ function AddBankAccountDialog({ open, onOpenChange }: AddBankAccountDialogProps)
                     {selectedBank?.name ?? "—"}
                   </span>
                 </div>
-                {resolvedAccount.bankId && (
-                  <div className="flex justify-between gap-4 text-sm">
-                    <span className="text-[#808080]">Bank ID</span>
-                    <span className="font-semibold text-[#111827] text-right">
-                      {resolvedAccount.bankId}
-                    </span>
-                  </div>
-                )}
                 <div className="flex justify-between gap-4 text-sm">
                   <span className="text-[#808080]">Account number</span>
                   <span className="font-semibold text-[#111827] tracking-wide">

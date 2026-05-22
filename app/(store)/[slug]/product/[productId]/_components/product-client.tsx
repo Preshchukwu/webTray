@@ -167,7 +167,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
             Product Not Found
           </h2>
           <button
-            onClick={() => router.push(`/store/${slug}`)}
+            onClick={() => router.push(`/${slug}`)}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Back to Store
@@ -207,7 +207,8 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
     const result = addToCart(product, quantity);
 
     if (result !== "no_stock") {
-      router.push(`/store/${slug}/checkout`);
+      sessionStorage.setItem('buyNowProduct', JSON.stringify({ ...product, quantity }));
+      router.push(`/${slug}/checkout`);
     } else {
       toast.error(`Cannot add more of ${product.name} to the cart.`);
     }
@@ -432,7 +433,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
                 >
                   <div 
                     className="aspect-square bg-gray-50 cursor-pointer relative flex items-center justify-center"
-                    onClick={() => router.push(`/store/${slug}/product/${item.id}`)}
+                    onClick={() => router.push(`/${slug}/product/${item.id}`)}
                   >
                     {item.images?.[0] ? (
                       <Image
@@ -448,7 +449,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
                   <div className="p-3">
                     <h4 
                       className="font-semibold text-sm text-gray-900 mb-1 truncate cursor-pointer"
-                      onClick={() => router.push(`/store/${slug}/product/${item.id}`)}
+                      onClick={() => router.push(`/${slug}/product/${item.id}`)}
                     >
                       {item.name}
                     </h4>
@@ -466,7 +467,8 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
                         onClick={() => {
                           const result = addToCart(item, 1);
                           if (result !== "no_stock") {
-                            router.push(`/store/${slug}/checkout`);
+                            sessionStorage.setItem('buyNowProduct', JSON.stringify({ ...item, quantity: 1 }));
+                            router.push(`/${slug}/checkout`);
                           } else {
                             toast.error(`Cannot add more of ${item.name} to the cart.`);
                           }

@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { User, Settings, Bell, Zap, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 // import SearchComponent from "@/components/search-component";
 import { StoreSwitcher } from "./StoreSwitcher";
@@ -16,6 +17,9 @@ export function SiteHeader() {
   return (
     <header className="mt-[34px] bg-[#ffffff] border mb-[24px] rounded-full flex h-[69px] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+        <Link href="/dashboard" className="flex md:hidden items-center mr-2 shrink-0">
+          <Image src="/webtraylogo.png" width={90} height={26} alt="Webtray" className="object-contain" />
+        </Link>
         <SidebarTrigger className="-ml-1 hidden md:flex" />
         <Separator
           orientation="vertical"

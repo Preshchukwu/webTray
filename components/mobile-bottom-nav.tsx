@@ -52,7 +52,7 @@ export function MobileBottomNav() {
             >
               <div className="relative p-2 rounded-2xl bg-transparent">
                 <item.icon size={24} stroke={2} />
-                <Lock className="absolute -top-0.5 -right-0.5 w-3 h-3 text-[#808080]" />
+                <Lock className="absolute -top-0.5 -right-0.5 w-3 h-3 text-red-500" />
               </div>
               <span className="text-[10px] font-semibold tracking-tight text-[#808080]">
                 {item.label}

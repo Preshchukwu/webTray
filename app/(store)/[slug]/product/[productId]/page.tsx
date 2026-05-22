@@ -28,7 +28,7 @@ export async function generateMetadata({
     title: `${product.name} | ${store?.storeName || "Webtray Store"}`,
     description: product.description || `Buy ${product.name} at ${store?.storeName || "our store"}.`,
     image: null, // Let Next.js auto-detect opengraph-image.tsx
-    url: `${process.env.NEXT_PUBLIC_APP_URL || "https://webtray.ng"}/store/${slug}/product/${productId}`,
+    url: `${process.env.NEXT_PUBLIC_APP_URL || "https://webtray.ng"}/${slug}/product/${productId}`,
   });
 }
 

@@ -12,6 +12,7 @@ import {
   Search,
   ChevronDown,
 } from "lucide-react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WithdrawalBankAccounts } from "./withdrawal-bank-accounts";
 import WalletPageSkeleton from "@/components/wallet-page-skeleton";
 import { PageHeader } from "@/components/page-header";
+import { useAuthStore } from "@/store/useAuthStore";
+import { HasBusinessAlert } from "@/components/hasBusinessAlert";
+import { RequestWithdrawalModal } from "./request-withdrawal-modal";
 
 // ─── Mock data (payment link — API pending) ───
 const MOCK_PAYMENT_LINK = "https://pay.webtray.co/precious-store";
@@ -124,10 +128,6 @@ function BalanceCard({
       </div>
 
       <div className="flex flex-row md:flex-col gap-3 md:justify-center">
-        <Button className="bg-white text-[#365BEB] hover:bg-blue-50 rounded-full px-6 font-semibold shadow-md gap-2 transition-all">
-          <ArrowDownToLine className="w-4 h-4" />
-          Fund Wallet
-        </Button>
         <Button
           type="button"
           onClick={onWithdraw}
@@ -354,6 +354,7 @@ function TransactionHistory() {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function WalletClient() {
+  const { user } = useAuthStore();
   const {
     walletBalance,
     isFetchingBalance,
@@ -363,12 +364,42 @@ export function WalletClient() {
   } = useWallet();
   const balance = Number(walletBalance?.balance ?? 0);
   const [addBankDialogOpen, setAddBankDialogOpen] = useState(false);
+  const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
 
-
+  // Guard: Show empty state if no business
+  if (!user?.business) {
+    return (
+      <div>
+        <PageHeader
+          title="Wallet"
+          subtitle="View your account balance, transaction history and manage withdrawal bank accounts."
+        />
+        {/* <HasBusinessAlert /> */}
+        <Card className="shadow-none rounded-none mt-6">
+          <CardHeader className="text-center leading-[24px]">
+            <CardTitle className="text-[#4D4D4D] font-bold text-[20px]">
+              Wallet Not Available
+            </CardTitle>
+            <CardContent className="pt-4 text-center">
+              <p className="text-[#808080] text-sm mb-4">
+                You need to complete your business setup to access your wallet and manage payments.
+              </p>
+              <Button
+                asChild
+                className="bg-[#365BEB] text-white hover:bg-[#365BEB]/90 rounded-full"
+              >
+                <Link href="/register-business">Start Setup</Link>
+              </Button>
+            </CardContent>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <>
-      
+
       <PageHeader
         title="Wallet"
         subtitle="View your account balance, transaction history and manage withdrawal bank accounts."
@@ -391,7 +422,7 @@ export function WalletClient() {
           balance={balance}
           isLoading={isFetchingBalance}
           hasError={!!balanceError}
-          onWithdraw={() => setAddBankDialogOpen(true)}
+          onWithdraw={() => setWithdrawalDialogOpen(true)}
         />
       )}
 
@@ -406,6 +437,12 @@ export function WalletClient() {
       </div>
 
       <TransactionHistory />
+
+      <RequestWithdrawalModal
+        open={withdrawalDialogOpen}
+        onOpenChange={setWithdrawalDialogOpen}
+        currentBalance={balance}
+      />
     </>
   );
 }
