@@ -80,11 +80,11 @@ export function StoreSwitcher() {
           role="combobox"
           aria-expanded={open}
           aria-label="Select a store"
-          className="w-[200px] justify-between"
+          className="w-[130px] sm:w-[200px] justify-between px-2 sm:px-4"
         >
-          <Store className="mr-2 h-4 w-4" />
-          {activeStore?.storeName || "Select store"}
-          <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          <Store className="mr-1 sm:mr-2 h-4 w-4 shrink-0" />
+          <span className="truncate">{activeStore?.storeName || "Select store"}</span>
+          <ChevronDown className="ml-1 sm:ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
 

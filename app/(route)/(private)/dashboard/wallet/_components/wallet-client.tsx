@@ -2,20 +2,17 @@
 
 import React, { useState } from "react";
 import {
-  Copy,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  Eye,
-  EyeOff,
   Check,
-  Search,
-  ChevronDown,
   Plus,
   Trash2,
   Pencil,
   FileText,
-  Building2,
   Link as LinkIcon,
+  ArrowUpFromLine,
+  Eye,
+  EyeOff,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,13 +32,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -74,15 +64,7 @@ interface Invoice {
   createdAt: string;
 }
 
-interface PayoutAccount {
-  bankName: string;
-  accountNumber: string;
-  accountName: string;
-}
-
 // ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_BALANCE = 125000;
-
 const INITIAL_INVOICES: Invoice[] = [
   {
     id: "INV-001",
@@ -115,114 +97,6 @@ const INITIAL_INVOICES: Invoice[] = [
     createdAt: "2026-04-30",
   },
 ];
-
-const INITIAL_PAYOUT: PayoutAccount = {
-  bankName: "Guaranty Trust Bank",
-  accountNumber: "0123456789",
-  accountName: "Precious Nwachukwu",
-};
-
-const NIGERIAN_BANKS = [
-  "Access Bank",
-  "Ecobank Nigeria",
-  "Fidelity Bank",
-  "First Bank of Nigeria",
-  "First City Monument Bank (FCMB)",
-  "Guaranty Trust Bank",
-  "Heritage Bank",
-  "Keystone Bank",
-  "Kuda Bank",
-  "Moniepoint",
-  "OPay",
-  "Palmpay",
-  "Polaris Bank",
-  "Providus Bank",
-  "Stanbic IBTC Bank",
-  "Standard Chartered Bank",
-  "Sterling Bank",
-  "Union Bank",
-  "United Bank for Africa (UBA)",
-  "Unity Bank",
-  "Wema Bank",
-  "Zenith Bank",
-];
-
-const MOCK_TRANSACTIONS = [
-  {
-    id: "TXN-001",
-    date: "May 2, 2026",
-    description: "Payment received from customer",
-    reference: "REF-78291",
-    type: "credit" as const,
-    amount: 15000,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-002",
-    date: "Apr 30, 2026",
-    description: "Withdrawal to bank account",
-    reference: "REF-78105",
-    type: "debit" as const,
-    amount: 20000,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-003",
-    date: "Apr 28, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77984",
-    type: "credit" as const,
-    amount: 8500,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-004",
-    date: "Apr 25, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77821",
-    type: "credit" as const,
-    amount: 32000,
-    status: "pending" as const,
-  },
-  {
-    id: "TXN-005",
-    date: "Apr 22, 2026",
-    description: "Withdrawal to bank account",
-    reference: "REF-77603",
-    type: "debit" as const,
-    amount: 10000,
-    status: "failed" as const,
-  },
-  {
-    id: "TXN-006",
-    date: "Apr 20, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77490",
-    type: "credit" as const,
-    amount: 5500,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-007",
-    date: "Apr 17, 2026",
-    description: "Payment received from customer",
-    reference: "REF-77301",
-    type: "credit" as const,
-    amount: 12000,
-    status: "success" as const,
-  },
-  {
-    id: "TXN-008",
-    date: "Apr 15, 2026",
-    description: "Withdrawal to bank account",
-    reference: "REF-77120",
-    type: "debit" as const,
-    amount: 18000,
-    status: "success" as const,
-  },
-];
-// ─── Mock data (payment link — API pending) ───
-const MOCK_PAYMENT_LINK = "https://pay.webtray.co/precious-store";
 
 const FILTER_OPTIONS = ["All", "Credit", "Debit", "Pending", "Failed"];
 
@@ -261,15 +135,6 @@ function InvoiceStatusBadge({ status }: { status: Invoice["status"] }) {
   );
 }
 
-function TxStatusBadge({ status }: { status: "success" | "pending" | "failed" }) {
-  const map = {
-    success: "bg-green-100 text-green-700",
-    pending: "bg-yellow-100 text-yellow-700",
-    failed: "bg-red-100 text-red-700",
-  };
-  return (
-    <span className={cn("px-2 py-1 rounded-full text-xs font-medium capitalize", map[status])}>
-      {status}
 // ─── Sub-components ──────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: WalletTransactionStatus }) {
   const map: Record<WalletTransactionStatus, string> = {
@@ -290,7 +155,7 @@ function StatusBadge({ status }: { status: WalletTransactionStatus }) {
 }
 
 // ─── Balance Card ─────────────────────────────────────────────────────────────
-function BalanceCard() {
+
 function formatTransactionDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
@@ -655,155 +520,6 @@ function InvoiceSection() {
   );
 }
 
-// ─── Payout Account Card ──────────────────────────────────────────────────────
-function PayoutAccountCard() {
-  const [account, setAccount] = useState<PayoutAccount>(INITIAL_PAYOUT);
-  const [showModal, setShowModal] = useState(false);
-
-  const [formBank, setFormBank] = useState("");
-  const [formAccountNumber, setFormAccountNumber] = useState("");
-  const [formAccountName, setFormAccountName] = useState("");
-
-  function openEdit() {
-    setFormBank(account.bankName);
-    setFormAccountNumber(account.accountNumber);
-    setFormAccountName(account.accountName);
-    setShowModal(true);
-  }
-
-  function handleSave() {
-    if (!formBank || !formAccountNumber.trim() || !formAccountName.trim()) {
-      toast.error("All fields are required.");
-      return;
-    }
-    if (formAccountNumber.length < 10) {
-      toast.error("Account number must be 10 digits.");
-      return;
-    }
-    setAccount({ bankName: formBank, accountNumber: formAccountNumber, accountName: formAccountName });
-    toast.success("Payout account updated.");
-    setShowModal(false);
-  }
-
-  return (
-    <>
-      <Card className="rounded-[24px] border border-gray-200 shadow-sm">
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <CardTitle className="text-[16px] font-bold text-[#111827] flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#365BEB]" />
-                Payout Account
-              </CardTitle>
-              <p className="text-sm text-[#808080]">
-                Your earnings are sent to this bank account.
-              </p>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-full border-gray-200 text-[#4D4D4D] gap-2 text-xs h-8 px-4 shrink-0"
-              onClick={openEdit}
-            >
-              <Pencil className="w-3.5 h-3.5" />
-              Update
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-0">
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm text-[#808080]">Bank</span>
-            <span className="text-sm font-semibold text-[#111827]">{account.bankName}</span>
-          </div>
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm text-[#808080]">Account Number</span>
-            <span className="text-[16px] font-bold text-[#111827] tracking-widest">
-              {account.accountNumber}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm text-[#808080]">Account Name</span>
-            <span className="text-sm font-semibold text-[#111827]">{account.accountName}</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Update Payout Account Modal */}
-      <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
-        <DialogContent className="sm:max-w-[440px] rounded-[24px] p-0 overflow-hidden gap-0">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-            <DialogTitle className="text-[#111827] font-bold text-xl">
-              Update Payout Account
-            </DialogTitle>
-            <p className="text-sm text-[#808080] mt-1">
-              Changes apply to future payouts only.
-            </p>
-          </DialogHeader>
-
-          <div className="px-6 py-5 flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium text-[#4D4D4D]">Bank Name</Label>
-              <Select value={formBank} onValueChange={setFormBank}>
-                <SelectTrigger className="rounded-xl border-gray-200">
-                  <SelectValue placeholder="Select a bank" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl max-h-[240px]">
-                  {NIGERIAN_BANKS.map((bank) => (
-                    <SelectItem key={bank} value={bank}>
-                      {bank}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium text-[#4D4D4D]">Account Number</Label>
-              <Input
-                placeholder="10-digit account number"
-                value={formAccountNumber}
-                maxLength={10}
-                onChange={(e) => setFormAccountNumber(e.target.value.replace(/\D/g, ""))}
-                className="rounded-xl border-gray-200 tracking-widest font-mono"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-sm font-medium text-[#4D4D4D]">Account Name</Label>
-              <Input
-                placeholder="e.g. Precious Nwachukwu"
-                value={formAccountName}
-                onChange={(e) => setFormAccountName(e.target.value)}
-                className="rounded-xl border-gray-200"
-              />
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 text-xs text-yellow-800 leading-relaxed">
-              Ensure the account name matches your bank records exactly to avoid payout delays.
-            </div>
-          </div>
-
-          <DialogFooter className="px-6 py-4 border-t border-gray-100 flex gap-3 sm:gap-3">
-            <Button
-              variant="outline"
-              className="rounded-full border-gray-200 text-[#4D4D4D] flex-1"
-              onClick={() => setShowModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-[#365BEB] hover:bg-[#365BEB]/90 text-white rounded-full flex-1"
-              onClick={handleSave}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-}
-
 // ─── Transaction History ──────────────────────────────────────────────────────
 function TransactionHistory() {
   const [search, setSearch] = useState("");
@@ -909,13 +625,6 @@ function TransactionHistory() {
                   key={tx.id}
                   className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
                 >
-                  <td className="py-4 pr-4 text-sm text-[#4D4D4D] whitespace-nowrap">{tx.date}</td>
-                  <td className="py-4 pr-4 text-sm text-[#111827]">{tx.description}</td>
-                  <td className="py-4 pr-4 text-sm text-[#808080] whitespace-nowrap">{tx.reference}</td>
-                  <td
-                    className={cn(
-                      "py-4 pr-4 text-sm font-semibold text-right whitespace-nowrap",
-                      tx.type === "credit" ? "text-green-600" : "text-[#111827]"
                   <td className="py-4 pr-4 text-sm text-[#4D4D4D] whitespace-nowrap">
                     {formatTransactionDate(tx.createdAt)}
                   </td>
@@ -937,7 +646,7 @@ function TransactionHistory() {
                     {formatAmount(Number(tx.amount))}
                   </td>
                   <td className="py-4 text-right">
-                    <TxStatusBadge status={tx.status} />
+                    <StatusBadge status={tx.status as WalletTransactionStatus} />
                   </td>
                 </tr>
               ))
@@ -993,11 +702,6 @@ export function WalletClient() {
 
   return (
     <div className="flex flex-col gap-6 py-4 md:py-6 max-w-6xl w-full">
-      <BalanceCard />
-      <InvoiceSection />
-      <PayoutAccountCard />
-    <>
-
       <PageHeader
         title="Wallet"
         subtitle="View your account balance, transaction history and manage withdrawal bank accounts."
@@ -1025,13 +729,13 @@ export function WalletClient() {
       )}
 
 
-      <div className="flex flex-col md:flex-row gap-6">
-        <PaymentLinkCard />
+      <div className="flex flex-col gap-6">
         <WithdrawalBankAccounts
-          className="flex-1 min-w-0"
+          className="w-full"
           addDialogOpen={addBankDialogOpen}
           onAddDialogOpenChange={setAddBankDialogOpen}
         />
+        <InvoiceSection />
       </div>
 
       <TransactionHistory />
@@ -1041,6 +745,6 @@ export function WalletClient() {
         onOpenChange={setWithdrawalDialogOpen}
         currentBalance={balance}
       />
-    </>
+    </div>
   );
 }
