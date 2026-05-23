@@ -20,6 +20,7 @@ import * as yup from "yup";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ReusableModal } from "@/components/reuseable-modal";
+import { InvoiceModal, InvoiceData } from "@/components/invoice-modal";
 
 interface Product {
   id: string;
@@ -67,10 +68,6 @@ const orderValidationSchema = yup.object({
     .required("Cart cannot be empty"),
 
   paymentMethod: yup.string().required("Please select payment method"),
-  onlinePaymentType: yup.string().when("paymentMethod", {
-    is: "online",
-    then: (schema) => schema.required("Please select online payment type"),
-  }),
 });
 
 export default function AddOrderPage() {
@@ -84,6 +81,8 @@ export default function AddOrderPage() {
   const [onlinePaymentType, setOnlinePaymentType] = useState("");
   const [viewAllModal, setViewAllModal] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const { addOrder, isAddingOrder, addOrderError } = useOrder();
   const { products, isFetchingProducts, updateProduct } = useProduct();
 
@@ -278,12 +277,23 @@ export default function AddOrderPage() {
         customerName: formData.customerName,
         phone: formData.customerPhone,
         orderItems,
-        paymentMethod: formData.paymentMethod,
-        onlinePaymentType: formData.onlinePaymentType || undefined,
+        paymentMethod: formData.paymentMethod === "POS" ? "online" : "offline",
+        onlinePaymentType: formData.paymentMethod === "POS" ? "POS" : undefined,
       };
 
       // Submit order
-      await addOrder(orderPayload);
+      const createdOrder = await addOrder(orderPayload);
+
+      // Capture invoice data before clearing
+      const newInvoice: InvoiceData = {
+        orderId: createdOrder?.id,
+        customerName: formData.customerName,
+        customerPhone: formData.customerPhone,
+        date: new Date().toLocaleDateString(),
+        items: cartItems.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
+        total: total,
+        paymentMethod: formData.paymentMethod,
+      };
 
       // ✅ Update product quantities in the database
       const updatePromises = cartItems.map(async (item) => {
@@ -321,6 +331,10 @@ export default function AddOrderPage() {
       localStorage.removeItem("cartItems");
       localStorage.removeItem("paymentMethod");
       localStorage.removeItem("onlinePaymentType");
+
+      // Open Invoice Modal
+      setInvoiceData(newInvoice);
+      setIsInvoiceModalOpen(true);
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const validationErrors: FormErrors = {};
@@ -387,7 +401,7 @@ export default function AddOrderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 md:p-6">
+    <div className="min-h-screen bg-gray-50 md:p-6 no-print">
       <div className="max-w-7xl mx-auto">
         <div className="mb-4 flex items-center justify-between p-2 md:p-4 bg-white rounded-lg">
           <div className="flex items-center gap-2">
@@ -578,9 +592,13 @@ export default function AddOrderPage() {
                       id="paymentMethod"
                       value={paymentMethod}
                       onChange={(e) => {
-                        setPaymentMethod(e.target.value);
-                        if (e.target.value !== "online")
+                        const val = e.target.value;
+                        setPaymentMethod(val);
+                        if (val === "POS") {
+                          setOnlinePaymentType("POS");
+                        } else {
                           setOnlinePaymentType("");
+                        }
                         if (errors.paymentMethod) {
                           setErrors((prev) => ({
                             ...prev,
@@ -596,9 +614,9 @@ export default function AddOrderPage() {
                       disabled={isAddingOrder}
                     >
                       <option value="">Select payment method</option>
-                      <option value="offline">Cash</option>
-                      <option value="offline">Transfer</option>
-                      <option value="online">POS</option>
+                      <option value="CASH">Cash</option>
+                      <option value="TRANSFER">Transfer</option>
+                      <option value="POS">POS</option>
                     </select>
                     {errors.paymentMethod && (
                       <p className="text-red-500 text-sm mt-1">
@@ -734,6 +752,13 @@ export default function AddOrderPage() {
         </div>
       </div>
       
+      <InvoiceModal 
+        isOpen={isInvoiceModalOpen} 
+        onClose={() => setIsInvoiceModalOpen(false)} 
+        onNewOrder={() => setIsInvoiceModalOpen(false)}
+        invoice={invoiceData}
+      />
+
       <ReusableModal
         isOpen={viewAllModal}
         onOpenChange={(open) => {

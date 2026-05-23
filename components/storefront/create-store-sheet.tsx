@@ -252,7 +252,6 @@ export function CreateStoreSheet({
           delivery: uiOptions.thirdParty.length > 0,
         },
       };
-      console.log("Submitting store form. logoFile present:", !!logoFile);
       await onSubmit(payload, logoFile);
     } catch (err) {
       if (err instanceof yup.ValidationError) {

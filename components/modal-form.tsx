@@ -59,6 +59,7 @@ interface ModalFormProps {
   onRemoveProduct?: (id: string) => void;
   onSubmitAll?: () => void;
   isSubmittingAll?: boolean;
+  showImageUpload?: boolean;
 }
 
 export function ModalForm({
@@ -78,6 +79,7 @@ export function ModalForm({
   onRemoveProduct,
   onSubmitAll,
   isSubmittingAll = false,
+  showImageUpload = true,
 }: ModalFormProps) {
   const initialState = Object.fromEntries(
     fields.map((f) => [f.id, initialData[f.id] || ""]),
@@ -246,77 +248,79 @@ export function ModalForm({
         </SheetHeader>
         <form onSubmit={handleSubmit} className="px-6 space-y-6">
           {/* Image Upload Section - Placed at the top for prominence */}
-          <div className="space-y-2">
-            <Label className="text-sm">
-             {title === "Add new store" ? "Store Logo" : "Product Images"}
-              <span className="text-xs text-muted-foreground ml-2">
-                (Optional, up to 3 images)
-              </span>
-            </Label>
+          {showImageUpload && (
+            <div className="space-y-2">
+              <Label className="text-sm">
+                {title === "Add new store" ? "Store Logo" : "Product Images"}
+                <span className="text-xs text-muted-foreground ml-2">
+                  (Optional, up to 3 images)
+                </span>
+              </Label>
 
-            <div className="grid grid-cols-4 gap-2">
-              {imagePreviews.map((preview, index) => (
-                <div
-                  key={index}
-                  className="relative aspect-square rounded-md border border-gray-200 overflow-hidden group"
-                >
-                  <Image
-                    src={preview}
-                    alt={`Product ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+              <div className="grid grid-cols-4 gap-2">
+                {imagePreviews.map((preview, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square rounded-md border border-gray-200 overflow-hidden group"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                  <div className="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
-                    {index === 0 ? "Main" : index + 1}
+                    <Image
+                      src={preview}
+                      alt={`Product ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <div className="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                      {index === 0 ? "Main" : index + 1}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              {selectedImages.length < 3 && (
-                <label
-                  htmlFor="image-upload"
-                  className="aspect-square rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400 flex flex-col items-center justify-center cursor-pointer transition-colors bg-gray-50 hover:bg-gray-100"
-                >
-                  {isUploadingImages ? (
-                    <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                  ) : (
-                    <>
-                      <Upload className="w-5 h-5 text-gray-400 mb-1" />
-                      <span className="text-[10px] text-gray-500">
-                        {selectedImages.length}/3
-                      </span>
-                    </>
-                  )}
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    disabled={isUploadingImages}
-                  />
-                </label>
+                {selectedImages.length < 3 && (
+                  <label
+                    htmlFor="image-upload"
+                    className="aspect-square rounded-md border-2 border-dashed border-gray-300 hover:border-gray-400 flex flex-col items-center justify-center cursor-pointer transition-colors bg-gray-50 hover:bg-gray-100"
+                  >
+                    {isUploadingImages ? (
+                      <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 text-gray-400 mb-1" />
+                        <span className="text-[10px] text-gray-500">
+                          {selectedImages.length}/3
+                        </span>
+                      </>
+                    )}
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={isUploadingImages}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div className="text-[11px] text-muted-foreground bg-gray-50 px-2 py-1.5 rounded">
+                JPG, PNG, WebP • Max 2MB • First image is main
+              </div>
+
+              {imageError && (
+                <div className="text-red-500 text-xs bg-red-50 px-2 py-1.5 rounded">
+                  {imageError}
+                </div>
               )}
             </div>
-
-            <div className="text-[11px] text-muted-foreground bg-gray-50 px-2 py-1.5 rounded">
-              JPG, PNG, WebP • Max 2MB • First image is main
-            </div>
-
-            {imageError && (
-              <div className="text-red-500 text-xs bg-red-50 px-2 py-1.5 rounded">
-                {imageError}
-              </div>
-            )}
-          </div>
+          )}
 
           {/* Existing form fields */}
           {fields.map((field) => (

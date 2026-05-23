@@ -19,7 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart })
   const [shareOpen, setShareOpen] = useState(false);
 
   const handleViewDetails = () => {
-    router.push(`/store/${slug}/product/${product.id}`);
+    router.push(`/${slug}/product/${product.id}`);
   };
 
   return (
@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart })
             onClick={(e) => {
               e.stopPropagation();
               sessionStorage.setItem('buyNowProduct', JSON.stringify(product));
-              router.push(`/store/${slug}/checkout?buyNow=${product.id}`);
+              router.push(`/${slug}/checkout?buyNow=${product.id}`);
             }}
             disabled={isOutOfStock}
             className={`flex-1 py-2 rounded-md text-sm font-medium transition ${

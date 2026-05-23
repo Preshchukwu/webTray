@@ -88,10 +88,11 @@ export const CustomerColumns = (): ColumnDef<Customer>[] => [
         <div className="py-3">
           <Link href={`/dashboard/customer/${customer.id}`}>
             <Button
+              variant="outline"
               size="sm"
-              className="flex border-0 bg-white text-black hover:bg-white hover:text-black shadow-none items-center gap-2"
+              className="rounded-full px-4 h-8 text-[#676767] border-gray-200 flex items-center gap-2"
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-4 w-4 text-[#999999]" />
               View
             </Button>
           </Link>

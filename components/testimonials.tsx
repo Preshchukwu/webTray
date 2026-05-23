@@ -8,22 +8,22 @@ export function Testimonials() {
     {
       name: "Adam Zakariyya",
       quote: "Thanks we have platform like this.",
-      image: "/ts1.png",
+      image: "/adam.jpg",
     },
     {
       name: "Jibril Ala",
       quote: "The smartest online inventory systems for everyone.",
-      image: "/ts2.png",
+      image: "/jibril.jpg",
     },
     {
       name: "Boyd Poundz",
       quote: "Might be the best eccomerce tool I have seen so far",
-      image: "/ts3.png",
+      image: "/sam.jpeg",
     },
     {
       name: "Suleiman Kabiru Adam",
       quote: "Best inventory and business management software on the internet.",
-      image: "/ts4.png",
+      image: "/ba.png",
     },
     {
       name: "Mustapha Ali Isah",
@@ -34,7 +34,7 @@ export function Testimonials() {
       name: "Abubakar Muhammad Ala",
       quote:
         "This software has genuinely helped me grow and manage my businesses more efficiently. I truly appreciate having a product like this available.",
-      image: "/ts6.png",
+      image: "/ala.jpg",
     },
     {
       name: "Vivian Ihechidare chigbu",

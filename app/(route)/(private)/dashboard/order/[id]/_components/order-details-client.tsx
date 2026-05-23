@@ -15,19 +15,35 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 
 export default function OrderDetailsClient() {
   const { id } = useParams();
   const router = useRouter();
-  const { useOrderQuery } = useOrder();
+  const { useOrderQuery, updateOrderStatus, isUpdatingOrder } = useOrder();
   const { data: orderDetail, isLoading, error } = useOrderQuery(Number(id));
-  console.log(orderDetail, "orderDetail")
 
   const order = orderDetail?.order;
   const customer = orderDetail?.customer;
   const orderItems = orderDetail?.orderItems;
   const products = orderDetail?.products;
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (order?.id) {
+      try {
+        await updateOrderStatus(order.id, newStatus);
+      } catch (err) {
+        console.error("Failed to update status", err);
+      }
+    }
+  };
 
   const enrichedItems = orderItems?.map(item => ({
     ...item,
@@ -77,16 +93,39 @@ export default function OrderDetailsClient() {
           <Link href="/dashboard/order" className="hover:text-gray-700">Orders</Link>
           <span> / Order details</span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div className="flex items-center">
-            <button onClick={() => router.back()} className="p2 hover:bg-gray-100 rounded-full transition-colors">
+            <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
               <ArrowLeft className="w-6 h-6 text-[#4D4D4D] mr-2" />
             </button>
-            <h1 className="text-xl md:text-[20px] font-bold text-[#4D4D4D]">Order Details</h1>
+            <h1 className="text-xl sm:text-[20px] font-bold text-[#4D4D4D]">Order Details</h1>
           </div>
-          <Button className="bg-[#1A1A1A] hover:bg-black text-white text-[14px] rounded-full px-[15px] py-[8px] h-auto font-regular">
-            Update Order Status
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                disabled={isUpdatingOrder} 
+                className="bg-[#1A1A1A] hover:bg-black text-white text-[14px] rounded-full px-[15px] py-[8px] h-auto font-regular w-full sm:w-auto"
+              >
+                {isUpdatingOrder ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Order Status"
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-full sm:w-56 rounded-[16px]">
+              <DropdownMenuRadioGroup value={order.status} onValueChange={handleStatusChange}>
+                <DropdownMenuRadioItem value="pending">Order Placed</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="paid">Payment Confirmed</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="processing">Processing</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="shipped">Shipped</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="completed">Delivered</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

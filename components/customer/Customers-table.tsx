@@ -9,8 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { capitalizeFirstLetter } from "@/lib/capitalize";
-import { useCustomer } from "@/hooks/use-customer";
+import { useAuthStore } from "@/store/useAuthStore";
 import { CustomerColumns } from "@/lib/customer/columns";
+import { useCustomer } from "@/hooks/use-customer";
 import { DataTable } from "@/lib/customer/data-table";
 
 //SOMETHINGS NEED TO BE ADJUSTED WHEN THE BACKEND SENDS STATUS.
@@ -28,7 +29,22 @@ export default function CustomerTable() {
   
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  // PRIORITY 1: Show loading state
+  const { user } = useAuthStore();
+  const hasBusiness = !!user?.business;
+
+  // PRIORITY 1: Show empty state if no business
+  if (!hasBusiness) {
+    return (
+      <div className="w-full max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6">
+        <div className="text-center text-gray-500 py-10">
+          <p className="font-medium">No customers yet</p>
+          <p className="text-sm mt-2">Add a business to start tracking your customers</p>
+        </div>
+      </div>
+    );
+  }
+
+  // PRIORITY 2: Show loading state
   if (isLoading) {
     return <TableSkeleton />;
   }
@@ -47,12 +63,12 @@ export default function CustomerTable() {
     );
   }
 
-  // PRIORITY 3: Check if we have valid data
+  // PRIORITY 4: Check if we have valid data
   if (!isSuccess || !customers || !Array.isArray(customers)) {
     return <TableSkeleton />;
   }
 
-  // PRIORITY 4: Handle empty state
+  // PRIORITY 5: Handle empty state
   if (customers.length === 0) {
     return (
       <div className="w-full max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6">

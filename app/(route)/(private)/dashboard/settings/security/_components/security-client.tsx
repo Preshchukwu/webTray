@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { Smartphone, AlertTriangle, CheckCircle2, Shield, Lock, Activity } from "lucide-react"
+import { SettingsPageHeader } from "../../_components/settings-page-header"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -18,18 +18,11 @@ export function SecurityClient() {
 
   return (
     <div className="flex flex-col gap-8 max-w-[1000px]">
-      {/* Breadcrumbs & Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-1 text-[12px] font-regular text-[#676767]">
-          <Link href="/dashboard/settings" className="hover:text-[#365BEB] transition-colors">
-            Settings
-          </Link>
-          <span className="mx-1">/</span>
-          <span>Security & Privacy</span>
-        </div>
-        <h1 className="text-[16px] leading-[24px] md:text-[20px] font-bold text-[#4D4D4D]">Security & Privacy</h1>
-        <p className="text-[#4D4D4D] text-[14px] leading-[24px] font-regular md:text-[16px]">Two-factor authentication, API keys, and privacy settings</p>
-      </div>
+      <SettingsPageHeader
+        segment="Security & Privacy"
+        title="Security & Privacy"
+        description="Two-factor authentication, API keys, and privacy settings"
+      />
 
       <div className="flex flex-col gap-8">
         {/* Two-Factor Authentication Section */}

@@ -4,13 +4,13 @@ import { PageHeader } from "./page-header";
 import { StatCard } from "./stat-card";
 import { useUser } from "@/hooks/use-user";
 import { useAuthStore } from "@/store/useAuthStore";
-import { HasBusinessAlert } from "./hasBusinessAlert";
 import { formatCurrency } from "@/lib/format-currency";
 export function SectionCards() {
   const { dashboard, isFetchingDashboard, dashboardError } = useUser();
   const { user } = useAuthStore();
 
-  const isLoading = isFetchingDashboard;
+  const hasBusiness = user?.business != null;
+  const isLoading = isFetchingDashboard && hasBusiness;
   if (isLoading) {
     return (
       <div className="">
@@ -84,15 +84,12 @@ export function SectionCards() {
     },
   ];
 
-  const hasBusiness = user?.business != null;
-
   return (
     <div className="">
       <PageHeader
         title="Overview"
         subtitle="Manage your products and track stock levels"
       />
-      {!hasBusiness && <HasBusinessAlert />}
       <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <StatCard key={i} {...stat} />

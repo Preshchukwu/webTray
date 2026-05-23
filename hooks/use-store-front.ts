@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/axios";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { ApiResponse, Store } from "@/types";
 import { useAuthStore } from "@/store/useAuthStore";
 import { StoreFrontSummary, StoreProduct } from "@/types";
@@ -325,12 +326,16 @@ export const useStoreFront = () => {
   // Create a new store
   const createStoreMutation = useMutation({
     mutationFn: async (payload: CreateStorePayload) => {
-      const { data } = await api.post<ApiResponse<{ store: StoreFrontInfo['store'] }>>(
-        `/storefront`,
-        payload
-      );
-      if (data?.responseSuccessful) return data.responseBody.store;
-      throw new Error(data?.responseMessage || 'Failed to create store');
+      try {
+        const { data } = await api.post<ApiResponse<{ store: StoreFrontInfo['store'] }>>(
+          `/storefront`,
+          payload
+        );
+        if (data?.responseSuccessful) return data.responseBody.store;
+        throw new Error(data?.responseMessage || "Failed to create store");
+      } catch (error) {
+        throw new Error(getApiErrorMessage(error, "Failed to create store"));
+      }
     },
     onSuccess: (newStore) => {
       toast.success('Store created successfully!');
@@ -346,7 +351,7 @@ export const useStoreFront = () => {
       queryClient.invalidateQueries({ queryKey: storeFrontKeys.all });
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Error creating store');
+      toast.error(getApiErrorMessage(error, "Error creating store"));
     },
   });
 
