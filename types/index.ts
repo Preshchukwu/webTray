@@ -358,6 +358,7 @@ export interface SubscribePayload {
   businessId: number;
   tier: "STARTER" | "GROWTH" | "BUSINESS";
   callback_url: string;
+  coupon_code?: string;
 }
 
 export interface SubscribeResponse {

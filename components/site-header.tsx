@@ -1,7 +1,7 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { User, Settings, Bell, Zap, TrendingUp, Briefcase } from "lucide-react";
+import { User, Settings, Zap, TrendingUp, Briefcase } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { StoreSwitcher } from "./StoreSwitcher";
 import { useSubscription } from "@/hooks/use-subscription";
 import { cn } from "@/lib/utils";
+import { NotificationPanel } from "./notification-panel";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -45,6 +46,12 @@ export function SiteHeader() {
             <Link href="/dashboard/settings" aria-label="Settings">
               <Settings className={cn("w-5 h-5 md:w-6 md:h-6", pathname.startsWith("/dashboard/settings") ? "text-[#365BEB]" : "text-[#808080]")} />
             </Link>
+            <Link href="/profile" aria-label="Profile">
+              <User className={pathname.startsWith("/profile") ? "text-[#365BEB]" : "text-[#808080]"} />
+            </Link>
+            <NotificationPanel
+              bellClassName={pathname.startsWith("/notification") ? "text-[#365BEB]" : "text-[#808080]"}
+            />
             {/* <Link href="/profile" aria-label="Profile">
               <User className={cn("w-5 h-5 md:w-6 md:h-6", pathname.startsWith("/profile") ? "text-[#365BEB]" : "text-[#808080]")} />
             </Link> */}
