@@ -57,15 +57,6 @@ export function SubscriptionClient() {
   }, [verifyData, refetchSubscription, router]);
 
   const handleSubscribe = async (tier: "STARTER" | "GROWTH" | "BUSINESS", coupon?: string) => {
-  const initiateSubscription = (plan: PricingPlan) => {
-    setSelectedPlan(plan);
-    setIsCheckoutModalOpen(true);
-  };
-
-  const handleConfirmSubscribe = async () => {
-    if (!selectedPlan) return;
-    
-    const tier = selectedPlan.tier as "STARTER" | "GROWTH" | "BUSINESS";
     try {
       setSubscribingTier(tier);
       const callback_url = `${window.location.origin}/dashboard/subscription`;
@@ -81,6 +72,18 @@ export function SubscriptionClient() {
     }
   };
 
+  const initiateSubscription = (plan: PricingPlan) => {
+    setSelectedPlan(plan);
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleCheckoutModalConfirm = async () => {
+    if (!selectedPlan) return;
+    
+    const tier = selectedPlan.tier as "STARTER" | "GROWTH" | "BUSINESS";
+    await handleSubscribe(tier);
+  };
+
   const openConfirmModal = (plan: PricingPlan) => {
     setCouponCode("");
     setConfirmModal({ open: true, plan });
@@ -89,7 +92,7 @@ export function SubscriptionClient() {
   const handleConfirmSubscribe = () => {
     if (!confirmModal.plan) return;
     setConfirmModal({ open: false, plan: null });
-    handleSubscribe(confirmModal.plan.tier, couponCode);
+    handleSubscribe(confirmModal.plan.tier as "STARTER" | "GROWTH" | "BUSINESS", couponCode);
   };
 
   const handleCancelPlan = async () => {
@@ -286,7 +289,6 @@ export function SubscriptionClient() {
                 <button
                   disabled={isCurrent || isSubscribing}
                   onClick={() => !isCurrent && openConfirmModal(plan)}
-                  onClick={() => initiateSubscription(plan)}
                   className={cn(
                     "w-full py-3 px-6 rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2",
                     isCurrent
@@ -550,7 +552,7 @@ export function SubscriptionClient() {
 
             <div className="flex flex-col gap-3">
               <Button 
-                onClick={handleConfirmSubscribe}
+                onClick={handleCheckoutModalConfirm}
                 disabled={isSubscribing}
                 className="w-full h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[16px] shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
               >
