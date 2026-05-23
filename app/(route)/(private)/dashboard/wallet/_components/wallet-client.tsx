@@ -99,7 +99,7 @@ function BalanceCard({
   const [visible, setVisible] = useState(true);
 
   return (
-    <div className="bg-[#365BEB] rounded-[24px] p-6 md:p-8 flex flex-col md:flex-row justify-between gap-6">
+    <div className="bg-[#365BEB] my-6 rounded-[24px] p-6 md:p-8 flex flex-col md:flex-row justify-between gap-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <p className="text-blue-200 text-sm font-medium">Account Balance</p>
@@ -222,7 +222,7 @@ function TransactionHistory() {
   });
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-200 shadow-sm p-6 flex flex-col gap-6">
+    <div className="bg-white my-6 rounded-[24px] border border-gray-200 shadow-sm p-6 flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-[18px] font-bold text-[#111827]">
           Transaction History
@@ -352,7 +352,6 @@ function TransactionHistory() {
   );
 }
 
-// ─── Main export ──────────────────────────────────────────────────────────────
 export function WalletClient() {
   const { user } = useAuthStore();
   const {
@@ -366,7 +365,6 @@ export function WalletClient() {
   const [addBankDialogOpen, setAddBankDialogOpen] = useState(false);
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
 
-  // Guard: Show empty state if no business
   if (!user?.business) {
     return (
       <div>
@@ -374,7 +372,6 @@ export function WalletClient() {
           title="Wallet"
           subtitle="View your account balance, transaction history and manage withdrawal bank accounts."
         />
-        {/* <HasBusinessAlert /> */}
         <Card className="shadow-none rounded-none mt-6">
           <CardHeader className="text-center leading-[24px]">
             <CardTitle className="text-[#4D4D4D] font-bold text-[20px]">

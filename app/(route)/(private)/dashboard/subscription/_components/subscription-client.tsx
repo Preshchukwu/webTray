@@ -288,18 +288,6 @@ export function SubscriptionClient() {
       </div>
       </div>
 
-      {/* Payment Section */}
-      <div className="flex flex-col gap-4 rounded-[24px] p-4 bg-[#FFFFFF]">
-        <h2 className="text-[16px] font-bold text-[#4D4D4D]">Payment</h2>
-        <div className="flex items-center gap-3 text-gray-600 p-1">
-          <div className="flex -space-x-2">
-             <div className="h-6 w-6 rounded-full bg-blue-600" />
-             <div className="h-6 w-6 rounded-full bg-blue-400/50" />
-          </div>
-          <span className="font-regular text-[16px] text-[#4D4D4D]">Mastercard • • • • 1555</span>
-        </div>
-      </div>
-
       <hr className="border-gray-100" />
 
       {/* Invoices Section */}

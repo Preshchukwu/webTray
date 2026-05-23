@@ -24,7 +24,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
 import { formatCurrency } from "@/lib/format-currency";
-import type { WalletBankAccount, RequestWithdrawalPayload } from "@/hooks/use-wallet";
+import type {
+  WalletBankAccount,
+  RequestWithdrawalPayload,
+} from "@/hooks/use-wallet";
 
 interface RequestWithdrawalModalProps {
   open: boolean;
@@ -44,19 +47,21 @@ export function RequestWithdrawalModal({
     isRequestingWithdrawal,
   } = useWallet();
 
-  const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>("");
+  const [selectedBankAccountId, setSelectedBankAccountId] =
+    useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   const selectedAccount = useMemo(() => {
     return bankAccounts?.find(
-      (acc) => acc.id === Number(selectedBankAccountId)
+      (acc) => acc.id === Number(selectedBankAccountId),
     );
   }, [selectedBankAccountId, bankAccounts]);
 
   const amountNumber = parseFloat(amount) || 0;
   const isValidAmount = amountNumber > 0 && amountNumber <= currentBalance;
-  const isFormValid = selectedBankAccountId && isValidAmount && !isRequestingWithdrawal;
+  const isFormValid =
+    selectedBankAccountId && isValidAmount && !isRequestingWithdrawal;
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -82,7 +87,7 @@ export function RequestWithdrawalModal({
       };
 
       await requestWithdrawal(payload);
-      
+
       // Reset form on success
       setSelectedBankAccountId("");
       setAmount("");
@@ -90,7 +95,7 @@ export function RequestWithdrawalModal({
       onOpenChange(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to request withdrawal"
+        err instanceof Error ? err.message : "Failed to request withdrawal",
       );
     }
   };
@@ -109,13 +114,18 @@ export function RequestWithdrawalModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-[24px] sm:max-w-md max-h-[90vh] flex flex-col p-0">
         <DialogHeader className="px-6 pt-6">
-          <DialogTitle className="text-[#111827]">Request Withdrawal</DialogTitle>
+          <DialogTitle className="text-[#111827]">
+            Request Withdrawal
+          </DialogTitle>
           <DialogDescription className="text-[#808080]">
             Enter the amount and select a bank account to withdraw your funds.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto flex-1 px-6">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 overflow-y-auto flex-1 px-6"
+        >
           {/* Current Balance Info */}
           <div className="bg-[#365BEB]/5 border border-[#365BEB]/10 rounded-xl p-4">
             <p className="text-xs text-[#808080] mb-1">Available Balance</p>
@@ -160,21 +170,27 @@ export function RequestWithdrawalModal({
                   No bank accounts
                 </AlertTitle>
                 <AlertDescription className="text-orange-700 text-sm mt-1">
-                  You need to add a bank account first. Go to your withdrawal accounts
-                  to add one.
+                  You need to add a bank account first. Go to your withdrawal
+                  accounts to add one.
                 </AlertDescription>
               </Alert>
             ) : (
-              <Select value={selectedBankAccountId} onValueChange={setSelectedBankAccountId}>
-                <SelectTrigger className="rounded-xl h-11">
+              <Select
+                value={selectedBankAccountId}
+                onValueChange={setSelectedBankAccountId}
+              >
+                <SelectTrigger className="rounded-xl h-11 w-full">
                   <SelectValue placeholder="Choose a bank account" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {bankAccounts.map((account) => (
                     <SelectItem key={account.id} value={String(account.id)}>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{account.accountName}</span>
-                        <span className="text-xs text-[#808080]">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-medium truncate">
+                          {account.accountName}
+                        </span>
+
+                        <span className="text-xs text-[#808080] truncate">
                           {account.bankName} · {account.accountNumber}
                         </span>
                       </div>
@@ -189,14 +205,16 @@ export function RequestWithdrawalModal({
           {selectedAccount && (
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
               <p className="text-xs text-[#808080] mb-2">Withdrawing to</p>
-              <div className="space-y-1">
-                <p className="text-sm font-semibold text-[#111827]">
+              <div className="space-y-1 min-w-0">
+                <p className="text-sm font-semibold text-[#111827] break-words">
                   {selectedAccount.accountName}
                 </p>
-                <p className="text-xs text-[#808080]">
+
+                <p className="text-xs text-[#808080] break-all">
                   {selectedAccount.bankName}
                 </p>
-                <p className="text-xs text-[#808080]">
+
+                <p className="text-xs text-[#808080] break-all">
                   {selectedAccount.accountNumber}
                 </p>
               </div>

@@ -7,7 +7,6 @@ import InventoryPageSkeleton from "../inventory-page-skeleton";
 import { OrderManagement } from "../order-managemet";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatCurrency } from "@/lib/format-currency";
-import { PageHeader } from "../page-header";
 export default function OrderStatCard() {
   const { orderSummary, isFetchingOrderSummary } = useOrder();
   const { user } = useAuthStore();
@@ -49,10 +48,6 @@ export default function OrderStatCard() {
 
   return (
     <div>
-      <PageHeader
-        title="Orders"
-        subtitle="Manage your products and track stock levels"
-      />
       <OrderManagement />
       <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, i) => (
