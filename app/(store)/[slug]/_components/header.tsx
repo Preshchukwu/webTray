@@ -78,12 +78,12 @@ export default function StoreHeader() {
             </div>
             {/* Right section */}
             <div className="flex items-center gap-4">
-              <Link
+              {/* <Link
                 href={`/${slug}/orders`}
                 className="text-sm text-gray-600 hover:text-gray-900 font-medium hidden md:block"
               >
                 Orders
-              </Link>
+              </Link> */}
               <button
                 onClick={() => setShowCart(true)}
                 className="relative p-2 hover:bg-gray-100 rounded-full transition"

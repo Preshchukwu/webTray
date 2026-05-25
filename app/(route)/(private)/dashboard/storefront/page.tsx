@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useStoreFront } from "@/hooks/use-store-front";
@@ -370,10 +371,11 @@ export default function Page() {
                 <Link href="/dashboard/storefront/manage-product">
                   <Button
                     className="rounded-full border-black"
-                    variant="outline"
-                    size="sm"
+                    variant="default"
+                    size="default"
                   >
                     Manage Products
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </CardHeader>
