@@ -51,20 +51,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart })
             Featured
           </span>
         )}
-        <button
-          onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
-          className="absolute top-2 left-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-sm flex items-center justify-center text-gray-600 hover:text-[#365BEB] hover:bg-white transition-all opacity-0 group-hover:opacity-100"
-          aria-label="Share product"
-        >
-          <Share2 className="w-3.5 h-3.5" />
-        </button>
       </div>
 
       <div className="p-4">
         <h3 className="font-semibold text-gray-900 mb-1 truncate">
           {product.name}
         </h3>
-        
+
         <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[40px]">
           {product.description || 'No description available'}
         </p>
@@ -78,6 +71,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, slug, onAddToCart })
               {product.quantity} in stock
             </p>
           </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
+            className="w-9 h-9 rounded-full bg-gray-100 hover:bg-[#365BEB] hover:text-white flex items-center justify-center text-gray-500 transition-all shrink-0"
+            aria-label="Share product"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="flex gap-2">

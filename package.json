@@ -41,6 +41,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "framer-motion": "^12.18.1",
+    "html-to-image": "^1.11.13",
     "jose": "^6.1.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.511.0",
