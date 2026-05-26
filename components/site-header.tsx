@@ -75,9 +75,9 @@ export function SiteHeader() {
               <Link href="/dashboard/settings" aria-label="Settings" className="hidden sm:block">
                 <Settings className={cn("w-5 h-5 md:w-6 md:h-6", pathname.startsWith("/dashboard/settings") ? "text-[#365BEB]" : "text-[#808080]")} />
               </Link>
-              <Link href="/profile" aria-label="Profile" className="hidden sm:block">
+              {/* <Link href="/profile" aria-label="Profile" className="hidden sm:block">
                 <User className={pathname.startsWith("/profile") ? "text-[#365BEB]" : "text-[#808080]"} />
-              </Link>
+              </Link> */}
               <NotificationPanel
                 bellClassName={pathname.startsWith("/notification") ? "text-[#365BEB]" : "text-[#808080]"}
               />

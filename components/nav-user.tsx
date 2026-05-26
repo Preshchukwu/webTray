@@ -42,7 +42,7 @@ export function NavUser({
     phone?: string
   }
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile, setOpenMobile } = useSidebar()
   const router = useRouter()
   const logout = useAuthStore((s) => s.logout)
   const isLoading = useAuthStore((s) => s.loading)
@@ -65,19 +65,26 @@ export function NavUser({
     }
   };
 
+  const closeMobileDrawer = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
+
+  const handleAccountClick = () => {
+    closeMobileDrawer()
+    // router.push('/profile')
+  }
+
   const handleSubscriptionClick = () => {
-    // Close the dropdown if it's open
-    // Since we don't have the state here, we'll rely on the natural behavior
-    // or you can pass a close handler if needed.
-    router.push('/dashboard/subscription');
-  };
+    closeMobileDrawer()
+    router.push('/dashboard/subscription')
+  }
 
   const handleNotificationClick = () => {
-    // Close the dropdown if it's open
-    // Since we don't have the state here, we'll rely on the natural behavior
-    // or you can pass a close handler if needed.
-    router.push('/dashboard/notification');
-  };
+    closeMobileDrawer()
+    router.push('/dashboard/notification')
+  }
 
 
   return (
@@ -126,7 +133,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAccountClick}>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
