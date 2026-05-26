@@ -1,11 +1,13 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import hero from "@/public/hero.png";
 import confeti_right from "@/public/confeti_right.svg";
 import confeti_left from "@/public/confeti_left.svg";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 export default function Hero() {
+  const router = useRouter();
   return (
     <section className="max-w-7xl mx-auto mt-[80px] md:mt-[100px] px-4 sm:px-6 lg:px-8 pt-16 pb-8">
       <div className="text-center relative">
@@ -27,11 +29,9 @@ export default function Hero() {
           <Button
             size="lg"
             className="bg-[#111827] hover:bg-[#30343e] rounded-full text-white px-[16px] py-[14px]"
-            asChild
+            onClick={() => router.push('/signup')}
           >
-            <Link href="/signup">
               Sign Up for Free
-            </Link>
           </Button>
           <Button
             size="lg"
@@ -46,12 +46,12 @@ export default function Hero() {
         </div>
 
         <Image
-          className="absolute w-[300px] h-[300px] -left-5 top-22"
+          className="absolute w-[300px] h-[300px] -left-5 top-22 pointer-events-none z-[-1]"
           src={confeti_left}
           alt="confeti"
         />
         <Image
-          className="absolute w-[300px] h-[300px] -right-5 top-22"
+          className="absolute w-[300px] h-[300px] -right-5 top-22 pointer-events-none z-[-1]"
           src={confeti_right}
           alt="confeti"
         />
