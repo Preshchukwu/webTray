@@ -83,6 +83,7 @@ export function StockAlertTable() {
             size="sm"
             onClick={() => setViewAllModal(true)}
             disabled={!hasLowProducts}
+            className="rounded-full px-4 h-8 text-[#676767] border-gray-200"
           >
             View All
           </Button>

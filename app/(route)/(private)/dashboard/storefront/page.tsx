@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useStoreFront } from "@/hooks/use-store-front";
@@ -106,7 +107,7 @@ export default function Page() {
 
   const customDomain = storeInfo?.store?.customDomain || defaultDomain;
   const storeSlug = storeInfo?.store?.slug || activeStore.slug;
-  const storeUrl = typeof window !== 'undefined' ? `${window.location.origin}/store/${storeSlug}` : "";
+  const storeUrl = typeof window !== 'undefined' ? `${window.location.origin}/${storeSlug}` : "";
 
   const handleCopyUrl = () => {
     if (!storeUrl) return;
@@ -231,29 +232,40 @@ export default function Page() {
               <CardDescription>
                 Your store is live and accepting orders
               </CardDescription>
-              <CardContent className="flex p-0 gap-[10px] items-center">
-                <Badge variant="default" className="rounded-full">
+              <CardContent className="flex p-0 gap-3 items-center w-full min-w-0">
+                <Badge variant="default" className="rounded-full shrink-0">
                   {isStoreOnline ? "Online" : "Offline"}
                 </Badge>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="link"
-                    className={`p-0 h-auto text-[#365BEB] hover:no-underline font-normal text-[16px] flex items-center gap-1.5 ${!isStoreOnline && "line-through text-gray-400 decoration-2 decoration-red-500"}`}
-                    asChild
+                <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                  <Link 
+                    href={`/${storeSlug}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`flex items-center gap-1.5 min-w-0 flex-1 hover:no-underline group ${!isStoreOnline && "line-through text-gray-400 decoration-2 decoration-red-500"}`}
                   >
-                    <Link href={`/store/${storeSlug}`} target="_blank" rel="noopener noreferrer">
-                      <Globe className="w-4 h-4 text-black" />
+                    <Globe className="w-4 h-4 text-black shrink-0" />
+                    <span className="truncate text-[#365BEB] text-[16px] font-normal">
                       {storeUrl}
-                    </Link>
-                  </Button>
+                    </span>
+                  </Link>
                   <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 text-gray-500 hover:text-black transition-colors"
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 text-gray-600 hover:text-black shrink-0 flex items-center gap-1 border-none"
                     onClick={handleCopyUrl}
                     title="Copy store link"
                   >
-                    {isCopied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    {isCopied ? (
+                      <>
+                        <Check className="w-3 h-3 text-green-500" />
+                        <span className="text-[11px] font-semibold">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span className="text-[11px] font-semibold">Copy</span>
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -315,7 +327,20 @@ export default function Page() {
               </div>
               <div>
                 <h3 className="font-medium text-gray-900 mb-1">Domain</h3>
-                <p className="text-gray-600">{defaultDomain}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-gray-600 truncate">{defaultDomain}</p>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-gray-400 hover:text-black shrink-0"
+                    onClick={() => {
+                      navigator.clipboard.writeText(defaultDomain);
+                      toast.success("Domain copied to clipboard!");
+                    }}
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
               <div className="pt-4">
                 <Button
@@ -346,10 +371,11 @@ export default function Page() {
                 <Link href="/dashboard/storefront/manage-product">
                   <Button
                     className="rounded-full border-black"
-                    variant="outline"
-                    size="sm"
+                    variant="default"
+                    size="default"
                   >
                     Manage Products
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </CardHeader>

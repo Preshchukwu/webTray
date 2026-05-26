@@ -186,7 +186,7 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
       >
         {/* Header */}
         <SheetHeader className="px-5 pt-6 pb-0 shrink-0">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2.5">
               <SheetTitle className="text-[18px] font-bold text-[#111827]">
                 Notifications

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { capitalizeFirstLetter } from "../capitalize";
 import { getOrderStatus, getStatusColor, getTypeColor } from "./get-status";
 import { formatCurrency } from "../format-currency";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 
 
@@ -104,9 +106,10 @@ export const createColumns = (): ColumnDef<Order>[] => [
       return (
         <div className="py-5">
           <Link href={`/dashboard/order/${order.id}`}>
-            <button className="text-[#A4A4A4] hover:text-[#365BEB] font-medium text-sm">
+            <Button variant="outline" size="sm" className="rounded-full px-4 h-8 text-[#676767] border-gray-200 flex items-center gap-2">
+              <Eye className="h-4 w-4 text-[#999999]" />
               View
-            </button>
+            </Button>
           </Link>
         </div>
       );

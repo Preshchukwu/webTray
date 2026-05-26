@@ -1094,7 +1094,7 @@ export default function ManageProductTable() {
                             type="button"
                             onClick={() => handleRemoveImage(index)}
                             disabled={deletingImageIndex !== null || isUploadingImages}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <X className="w-3 h-3" />
                           </button>

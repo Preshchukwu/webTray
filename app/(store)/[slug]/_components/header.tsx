@@ -68,7 +68,7 @@ export default function StoreHeader() {
                 <h1 className="text-xl font-bold tracking-tight text-gray-900">{storeName}</h1>
               </div>
               <nav className="hidden md:flex gap-6">
-                <Link href={`/store/${slug}`} className="text-sm text-gray-600 hover:text-gray-900">
+                <Link href={`/${slug}`} className="text-sm text-gray-600 hover:text-gray-900">
                   Home
                 </Link>
                 <button className="text-sm text-gray-600 hover:text-gray-900">
@@ -78,12 +78,12 @@ export default function StoreHeader() {
             </div>
             {/* Right section */}
             <div className="flex items-center gap-4">
-              <Link
-                href={`/store/${slug}/orders`}
+              {/* <Link
+                href={`/${slug}/orders`}
                 className="text-sm text-gray-600 hover:text-gray-900 font-medium hidden md:block"
               >
                 Orders
-              </Link>
+              </Link> */}
               <button
                 onClick={() => setShowCart(true)}
                 className="relative p-2 hover:bg-gray-100 rounded-full transition"

@@ -391,3 +391,117 @@ export interface CancelSubscriptionResponse {
   status: "CANCELLED";
   message: string;
 }
+
+// Wallet Types
+export interface WalletBalance {
+  id: number;
+  storeId: number;
+  balance: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export type WalletTransactionType = "CREDIT" | "DEBIT";
+export type WalletTransactionStatus = "SUCCESS" | "PENDING" | "FAILED";
+
+export interface WalletTransaction {
+  id: number;
+  walletId: number;
+  type: WalletTransactionType;
+  amount: string;
+  status: WalletTransactionStatus;
+  reference: string;
+  description: string;
+  bankCode: string | null;
+  accountNumber: string | null;
+  accountName: string | null;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export interface WalletBankApi {
+  id: number;
+  name: string;
+  slug: string;
+  code: string;
+  longcode?: string;
+  active?: boolean;
+  country?: string;
+  currency?: string;
+  type?: string;
+  gateway?: string | null;
+  pay_with_bank?: boolean;
+  supports_transfer?: boolean;
+  available_for_direct_debit?: boolean;
+  is_deleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WalletBank extends WalletBankApi {
+  bankCode: string;
+}
+
+export interface WalletBankAccount {
+  id: number;
+  walletId?: number;
+  storeId?: number;
+  bankCode: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
+}
+
+export interface ValidateAccountPayload {
+  accountNumber: string;
+  bankCode: string;
+}
+
+export interface ValidatedAccount {
+  accountName: string;
+  accountNumber: string;
+  bankCode: string;
+  bankId?: number;
+}
+
+export interface ValidatedAccountApi {
+  account_number?: string;
+  account_name?: string;
+  bank_id?: number;
+  accountNumber?: string;
+  accountName?: string;
+  bankCode?: string;
+  code?: string;
+  bank_name?: string;
+}
+
+export interface AddBankAccountPayload {
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  accountName: string;
+}
+
+export interface DeleteBankAccountResponse {
+  message: string;
+}
+
+export interface RequestWithdrawalPayload {
+  amount: number;
+  bankAccountId: number;
+}
+
+export interface WithdrawalResponseBody {
+  updatedWallet: WalletBalance;
+  transaction: WalletTransaction;
+}
+
+export interface WithdrawalResponse {
+  updatedWallet: WalletBalance;
+  transaction: WalletTransaction;
+}

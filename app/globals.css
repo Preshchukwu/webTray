@@ -168,3 +168,10 @@
 .animation-delay-300 {
   animation-delay: 0.3s;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+

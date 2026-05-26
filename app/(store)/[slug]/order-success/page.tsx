@@ -83,7 +83,7 @@ export default function OrderSuccessPage({ params }: OrderSuccessPageProps) {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Verification Failed</h1>
           <p className="text-gray-600 mb-8">{error}</p>
           <button
-            onClick={() => router.push(`/store/${slug}/checkout`)}
+            onClick={() => router.push(`/${slug}/checkout`)}
             className="flex items-center justify-center gap-2 w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -178,13 +178,13 @@ export default function OrderSuccessPage({ params }: OrderSuccessPageProps) {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push(`/store/${slug}`)}
+              onClick={() => router.push(`/${slug}`)}
               className="bg-[#111827] text-white px-10 py-4 rounded-full font-bold hover:bg-[#1E293B] transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-sm"
             >
               Continue Shopping
             </button>
             <button
-              onClick={() => router.push(`/store/${slug}/orders`)}
+              onClick={() => router.push(`/${slug}/orders`)}
               className="bg-white border-2 border-[#111827] text-[#0F172A] px-10 py-3.5 rounded-full font-bold hover:bg-gray-50 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               View Order History

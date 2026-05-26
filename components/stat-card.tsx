@@ -151,8 +151,10 @@ export function StatCard({
                   </Link>
                 </Button>
                 <Button
+                variant="link"
                   size="sm"
-                  className="text-white hover:bg-[#5f70b4] bg-[#365BEB] rounded-full"
+                  className="text-blue-500 underline"
+                //   className="text-white hover:bg-[#5f70b4] bg-[#365BEB] rounded-full"
                   onClick={handleAddCategoryDrawer}
                   disabled={isAddingCategory}
                 >
@@ -168,6 +170,7 @@ export function StatCard({
         onOpenChange={handleModalClose}
         title="Create new category "
         submitLabel={isAddingCategory ? "Adding..." : "Create Category"}
+        showImageUpload={false}
         onAddCategory={handleAddCategory}
         onSubmit={handleSubmit}
         validationErrors={validationErrors}

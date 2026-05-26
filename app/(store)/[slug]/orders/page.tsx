@@ -66,9 +66,9 @@ export default function OrdersPage({ params }: OrdersPageProps) {
               We couldn&apos;t find any orders linked to this browser. Place an order or use the &quot;Find My Orders&quot; feature to recover your order history.
             </p>
             <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => router.push(`/store/${slug}`)}
-                className="bg-gray-900 text-white px-6 py-2.5 rounded-md text-sm font-medium hover:bg-gray-800 transition"
+              <button 
+                onClick={() => router.push(`/${slug}`)}
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition"
               >
                 Continue Shopping
               </button>
@@ -84,9 +84,9 @@ export default function OrdersPage({ params }: OrdersPageProps) {
       {/* Top Nav */}
       <div className="max-w-7xl mx-auto px-4 py-3 my-2 flex items-center relative">
         {/* Back Button */}
-        <button
-          onClick={() => router.push(`/store/${slug}`)}
-          className="flex items-center gap-2 text-gray-700 text-sm px-3 py-1.5 border rounded hover:bg-gray-50 transition"
+        <button 
+          onClick={() => router.push(`/${slug}`)}
+          className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors bg-white px-4 py-2 rounded-lg border shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           Back

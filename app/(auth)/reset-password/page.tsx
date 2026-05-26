@@ -1,6 +1,7 @@
 "use client"
 import { useState, Suspense } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -104,12 +105,19 @@ function ResetPasswordContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <div className="p-4">
-          <div className="flex items-center gap-2">
-            <Image src="/webtraylogo.png" width={140} height={40} alt="logo" />
-          </div>
+          <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+            <Image 
+              src="/webtraylogo.png" 
+              width={140} 
+              height={40} 
+              alt="logo" 
+              className="w-[120px] sm:w-[140px] h-auto"
+              priority
+            />
+          </Link>
         </div>
 
-        <div className="flex-col flex items-center justify-start w-[30%] mx-auto">
+        <div className="flex-col flex items-center justify-start w-full max-w-md px-6 sm:px-0 md:w-[30%] mx-auto">
           {/* Success Alert */}
           <Alert className="mb-6 border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
@@ -143,12 +151,19 @@ function ResetPasswordContent() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="p-4">
-        <div className="flex items-center gap-2">
-          <Image src="/webtraylogo.png" width={140} height={40} alt="logo" />
-        </div>
+        <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+          <Image 
+            src="/webtraylogo.png" 
+            width={140} 
+            height={40} 
+            alt="logo" 
+            className="w-[120px] sm:w-[140px] h-auto"
+            priority
+          />
+        </Link>
       </div>
 
-      <div className="flex-col flex items-center justify-start w-[30%] mx-auto">
+      <div className="flex-col flex items-center justify-start w-full max-w-md px-6 sm:px-0 md:w-[30%] mx-auto">
         {/* Error Alert */}
         {alert.show && alert.type === "error" && (
           <Alert className="mb-6 border-red-200 bg-red-50">
