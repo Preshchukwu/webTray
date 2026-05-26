@@ -51,12 +51,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
           {product.feature && !isOutOfStock && (
-            <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
-              Featured
-            </span>
-          </div>
-        )}
-        {product.feature && !isOutOfStock && (
           <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
             Featured
           </span>
@@ -95,7 +89,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               sessionStorage.setItem('buyNowProduct', JSON.stringify(product));
-              router.push(`/store/${slug}/checkout?buyNow=${product.id}`);
+              router.push(`/${slug}/checkout?buyNow=${product.id}`);
             }}
             disabled={isOutOfStock}
             className={`flex-1 py-2 rounded-md text-sm font-medium transition ${
@@ -106,90 +100,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
           >
             {isOutOfStock ? 'Out of Stock' : 'Buy Now'}
           </button>
-          )}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setShareOpen(true);
+              onAddToCart?.(product);
             }}
-            className="
-    absolute top-2 left-2
-    w-8 h-8 rounded-full
-    bg-white/90 backdrop-blur-sm shadow-sm
-    flex items-center justify-center
-    text-gray-600 hover:text-[#365BEB] hover:bg-white
-    transition-all
-    opacity-100 md:opacity-0 md:group-hover:opacity-100
-  "
-            aria-label="Share product"
+            disabled={isOutOfStock}
+            className={`p-2 border rounded-md transition ${
+              isOutOfStock
+                ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+            }`}
           >
-            <Share2 className="w-3.5 h-3.5" />
+            <ShoppingCart className="w-5 h-5" />
           </button>
         </div>
-
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-900 mb-1 truncate">
-            {product.name}
-          </h3>
-
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[40px]">
-            {product.description || "No description available"}
-          </p>
-
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                ₦{parseFloat(product.price).toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500">
-                {product.quantity} in stock
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                sessionStorage.setItem(
-                  "buyNowProduct",
-                  JSON.stringify(product),
-                );
-                router.push(`/${slug}/checkout?buyNow=${product.id}`);
-              }}
-              disabled={isOutOfStock}
-              className={`flex-1 py-2 rounded-md text-sm font-medium transition ${
-                isOutOfStock
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-900 text-white hover:bg-gray-800"
-              }`}
-            >
-              {isOutOfStock ? "Out of Stock" : "Buy Now"}
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddToCart?.(product);
-              }}
-              disabled={isOutOfStock}
-              className={`p-2 border rounded-md transition ${
-                isOutOfStock
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <ShoppingCart className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
       </div>
-      <ProductShareSheet
-        open={shareOpen}
-        onClose={() => setShareOpen(false)}
-        product={product}
-        slug={slug}
-      />
-    </>
+    </div>
+    <ProductShareSheet
+      open={shareOpen}
+      onClose={() => setShareOpen(false)}
+      product={product}
+      slug={slug}
+    />
+  </>
   );
 };
 
