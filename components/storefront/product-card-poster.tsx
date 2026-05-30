@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Download, Share2, Package, Store } from "lucide-react";
+import { Download, Share2, Package, Store, LeafyGreen, ShieldCheck, TruckElectric, RefreshCcw, ShoppingBag, Tag, CheckCircle2, XCircle, Star } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import {
@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { StoreProduct } from "@/types";
 import { capitalizeFirstLetter } from "@/lib/capitalize";
+import { ProductShareSheet } from "@/components/product-share-sheet";
 
 interface ProductCardPosterProps {
   open: boolean;
@@ -74,29 +75,41 @@ function TrustBadge({ icon, label }: { icon: string; label: string }) {
 }
 
 /* ─── Feature circle ─────────────────────────────────────────────── */
-function FeatureBadge({ icon, label }: { icon: string; label: string }) {
+function FeatureBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "4px",
-        padding: "8px 10px",
-        borderRadius: "50px",
-        border: "1px solid #E8E3DC",
-        background: "#FAF8F5",
-        minWidth: "60px",
+        gap: "2px",
+        padding: "1px 2px",
+        borderRight: "1px solid #E8E3DC",
+        flexShrink: 1,
+        minWidth: 0,
+        maxWidth: "36px",
       }}
     >
-      <span style={{ fontSize: "14px" }}>{icon}</span>
+      <span style={{ 
+        fontSize: "12px",
+        background: "#EDE8E1",
+        borderRadius: "50%",
+        width: "20px",
+        height: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+      }}>{icon}</span>
       <span
         style={{
-          fontSize: "8.5px",
+          fontSize: "7px",
           color: "#7A7365",
           fontWeight: 600,
           textAlign: "center",
-          lineHeight: 1.2,
+          lineHeight: 1.1,
+          whiteSpace: "normal",
+          wordBreak: "break-word",
         }}
       >
         {label}
@@ -105,7 +118,7 @@ function FeatureBadge({ icon, label }: { icon: string; label: string }) {
   );
 }
 
-/* ─── The actual product card (captured by html-to-image) ─────────── */
+
 function ProductPoster({
   product,
   storeName,
@@ -119,24 +132,50 @@ function ProductPoster({
   const imgSrc = product.images?.[0];
 
   const featureBadges = [
-    { icon: "🛍️", label: capitalizeFirstLetter(categoryName || "Product") },
-    { icon: product.quantity > 0 ? "✅" : "❌", label: product.quantity > 0 ? "In Stock" : "Out of Stock" },
-    ...(product.feature ? [{ icon: "⭐", label: "Featured" }] : [{ icon: "🏪", label: "Official" }]),
+    {
+      icon: <Tag style={{ width: 16, height: 16, color: "#7A7365" }} />,
+      label: capitalizeFirstLetter(categoryName || "Product"),
+    },
+    {
+      icon: product.quantity > 0 ? (
+        <CheckCircle2 style={{ width: 16, height: 16, color: "#7A7365" }} />
+      ) : (
+        <XCircle style={{ width: 16, height: 16, color: "#7A7365" }} />
+      ),
+      label: product.quantity > 0 ? "In Stock" : "Out of Stock",
+    },
+    ...(product.feature
+      ? [
+          {
+            icon: <Star style={{ width: 16, height: 16, color: "#7A7365" }} />,
+            label: "Featured",
+          },
+        ]
+      : [
+          {
+            icon: <ShieldCheck style={{ width: 16, height: 16, color: "#7A7365" }} />,
+            label: "Official",
+          },
+        ]),
   ];
 
   return (
     <div
       style={{
-        width: "360px",
-        background: "#F5F0EA",
-        borderRadius: "24px",
+        width: "100%",
+        maxWidth: "390px",
+        minWidth: "260px",
+        borderRadius: "6px",
+        padding: "5px",
+        border: "1px solid #E8E3DC",
         overflow: "hidden",
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+        boxShadow: "rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset"
       }}
     >
+      {/* box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px; */}
       {/* ── Image area ─────────────────────────────────────── */}
-      <div style={{ position: "relative", height: "220px", overflow: "hidden" }}>
+      <div style={{ position: "relative", aspectRatio: "390 / 220", width: "100%", overflow: "hidden", borderRadius: "6px", border: "1px solid #E8E3DC" }}>
         {imgSrc ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
@@ -146,7 +185,7 @@ function ProductPoster({
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              // objectFit: "cover",
               display: "block",
             }}
           />
@@ -171,23 +210,29 @@ function ProductPoster({
         <div
           style={{
             position: "absolute",
-            top: "12px",
+            top: "0px",
             left: "12px",
             background: "rgba(74, 103, 65, 0.90)",
             color: "white",
-            fontSize: "9px",
+            fontSize: "8px",
             fontWeight: 700,
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            padding: "6px 10px",
-            borderRadius: "50px",
+            padding: "4px 10px 0px 10px",
+            borderTopRightRadius: "0px",
+            borderTopLeftRadius: "0px",
+            borderBottomRightRadius: "50px",
+            borderBottomLeftRadius: "50px",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             gap: "5px",
             backdropFilter: "blur(4px)",
+            // border: "3px solid red",
+            height: "55px",
           }}
         >
-          <span>🌿</span>
+          <LeafyGreen style={{ width: 16, height: 16, color: "white" }} />
           <span>{product.feature ? "Featured Pick" : capitalizeFirstLetter(categoryName || "Product")}</span>
         </div>
 
@@ -195,16 +240,16 @@ function ProductPoster({
         <div
           style={{
             position: "absolute",
-            top: "12px",
+            top: "6px",
             right: "12px",
-            background: "rgba(255,255,255,0.92)",
-            borderRadius: "14px",
+            // background: "rgba(255,255,255,0.92)",
+            // borderRadius: "14px",
             padding: "7px 10px",
             display: "flex",
             alignItems: "center",
             gap: "7px",
-            backdropFilter: "blur(4px)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            // backdropFilter: "blur(4px)",
+            // boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
           <div
@@ -212,7 +257,7 @@ function ProductPoster({
               width: "28px",
               height: "28px",
               background: "#F5F0EA",
-              borderRadius: "8px",
+              borderRadius: "50%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -232,52 +277,35 @@ function ProductPoster({
       </div>
 
       {/* ── Content area ───────────────────────────────────── */}
-      <div style={{ background: "white", padding: "16px 18px 14px" }}>
-        {/* Name + price row */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", marginBottom: "6px" }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: "18px", fontWeight: 800, color: "#111827", lineHeight: 1.25, marginBottom: "2px" }}>
-              {capitalizeFirstLetter(product.name)}
-            </div>
+      <div style={{ background: "white", padding: "8px 12px", display: "flex", gap: "12px", flexGrow: 1, alignItems: "center" }}>
+        <div style={{ width: "50%", minWidth: 0 }}>
+          <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#111827", lineHeight: 1.25 }}>
+            {capitalizeFirstLetter(product.name)}
+          </h3>
+          <div style={{ position: "relative", textAlign: "center", margin: "8px 0" }}>
+            <hr style={{ border: "1px solid #E8E3DC", margin: 0 }} />
           </div>
-          <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontSize: "20px", fontWeight: 800, color: "#111827" }}>
-              ₦{price}
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative divider */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-          <div style={{ flex: 1, height: "1px", background: "#E8E3DC" }} />
-          <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
-            <path d="M0 5 C3 1 7 9 10 5 C13 1 17 9 20 5" stroke="#D4CEC6" strokeWidth="1.5"/>
-          </svg>
-          <div style={{ flex: 1, height: "1px", background: "#E8E3DC" }} />
-        </div>
-
-        {product.description && (
-          <div
-            style={{
-              fontSize: "11px",
-              color: "#7A7365",
-              lineHeight: 1.6,
-              marginBottom: "12px",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
+          <p style={{ margin: 0, fontSize: "12px", color: "#4F4F4F", lineHeight: 1.4, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", wordBreak: "break-word" }}>
             {product.description}
-          </div>
-        )}
+          </p>
+        </div>
 
-        {/* Feature badges */}
-        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          {featureBadges.map((b) => (
-            <FeatureBadge key={b.label} icon={b.icon} label={b.label} />
-          ))}
+        <div style={{ width: "1px", background: "#D4CEC6", alignSelf: "stretch" }} />
+
+        <div style={{ width: "50%", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px", minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, flexWrap: "nowrap", padding: "2px 0", overflow: "visible" }}>
+            {featureBadges.map((b) => (
+              <FeatureBadge key={b.label} icon={b.icon} label={b.label} />
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", flexShrink: 0 }}>
+            <span style={{ fontSize: "16px", fontWeight: 700, color: "#111827", whiteSpace: "nowrap" }}>
+              ₦{price}
+            </span>
+            <span style={{ fontSize: "12px", color: "#7A7365", textDecoration: "line-through", whiteSpace: "nowrap" }}>
+              ₦{Math.round(Number(product.price) * 1.2).toLocaleString()}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -288,33 +316,51 @@ function ProductPoster({
           padding: "10px 18px",
           display: "flex",
           alignItems: "center",
+          borderRadius: "10px",
           justifyContent: "space-between",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <TrustBadge icon="🔒" label={"Secure\nPayment"} />
-          <div style={{ width: "1px", height: "22px", background: "#D4CEC6" }} />
-          <TrustBadge icon="🚚" label={"Fast\nDelivery"} />
-          <div style={{ width: "1px", height: "22px", background: "#D4CEC6" }} />
-          <TrustBadge icon="↩️" label={"Easy\nReturns"} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <ShieldCheck style={{ width: 16, height: 16, color: "#000000" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "1px", color: "#111827", fontSize: "8px", fontWeight: 600, lineHeight: 1.1 }}>
+                <span>Secure</span>
+                <span>Payment</span>
+              </div>
+            </div>
+            <div style={{ width: "1px", height: "22px", background: "#D4CEC6" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <TruckElectric style={{ width: 16, height: 16, color: "#000000" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "1px", color: "#111827", fontSize: "8px", fontWeight: 600, lineHeight: 1.1 }}>
+                <span>Free</span>
+                <span>Delivery</span>
+              </div>
+            </div>
+            <div style={{ width: "1px", height: "22px", background: "#D4CEC6" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <RefreshCcw style={{ width: 16, height: 16, color: "#000000" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "1px", color: "#111827", fontSize: "8px", fontWeight: 600, lineHeight: 1.1 }}>
+                <span>Easy</span>
+                <span>Returns</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* WebTray branding */}
-        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0px" }}>
           <div
             style={{
               width: "20px",
               height: "20px",
-              background: "#365BEB",
               borderRadius: "50%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <svg viewBox="0 0 24 24" width="11" height="11" fill="white">
-              <path d="M6 2a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2V4a2 2 0 00-2-2H6zm0 2h12v13.5l-2-1-4 2-4-2-2 1V4z" />
-            </svg>
+            <ShoppingBag style={{ width: 14, height: 14, color: "#111827" }} />
           </div>
           <div>
             <div style={{ fontSize: "9px", fontWeight: 800, color: "#111827", letterSpacing: "0.06em", textTransform: "uppercase", lineHeight: 1 }}>
@@ -341,6 +387,7 @@ export function ProductCardPoster({
 }: ProductCardPosterProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const price = Number(product.price).toLocaleString();
   const productUrl =
@@ -377,41 +424,12 @@ export function ProductCardPoster({
     }
   }
 
-  async function handleShare() {
-    setIsExporting(true);
-    try {
-      const dataUrl = await captureCard();
-      if (!dataUrl) { toast.error("Failed to export card"); return; }
 
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      const file = new File([blob], `${product.name}-card.png`, { type: "image/png" });
-
-      const shareText = `Check out *${product.name}* — ₦${price}${productUrl ? `\n\n${productUrl}` : ""}`;
-
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: product.name,
-          text: shareText,
-          files: [file],
-        });
-      } else {
-        // Fallback: WhatsApp
-        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name !== "AbortError") {
-        toast.error("Share failed. Try downloading instead.");
-      }
-    } finally {
-      setIsExporting(false);
-    }
-  }
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-[420px] p-6 rounded-[24px] gap-0">
-        <DialogHeader className="mb-5">
+        <DialogHeader className="mb-8">
           <DialogTitle className="text-[17px] font-semibold text-[#111827]">
             Product Card
           </DialogTitle>
@@ -421,8 +439,8 @@ export function ProductCardPoster({
         </DialogHeader>
 
         {/* Card preview */}
-        <div className="flex justify-center overflow-auto">
-          <div ref={cardRef}>
+        <div className="flex w-full justify-center overflow-auto md:overflow-hidden">
+          <div ref={cardRef} className="w-full max-w-[390px]">
             <ProductPoster
               product={product}
               storeName={storeName}
@@ -432,7 +450,7 @@ export function ProductCardPoster({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 mt-5">
+        <div className="flex gap-3 mt-8">
           <Button
             onClick={handleDownload}
             disabled={isExporting}
@@ -442,7 +460,7 @@ export function ProductCardPoster({
             {isExporting ? "Exporting…" : "Download"}
           </Button>
           <Button
-            onClick={handleShare}
+            onClick={() => setShareOpen(true)}
             disabled={isExporting}
             className="flex-1 rounded-full bg-[#365BEB] hover:bg-[#365BEB]/90 text-white gap-2 h-10"
           >
@@ -451,6 +469,14 @@ export function ProductCardPoster({
           </Button>
         </div>
       </DialogContent>
+      
+      <ProductShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        product={product}
+        slug={slug}
+        storeName={storeName}
+      />
     </Dialog>
   );
 }
