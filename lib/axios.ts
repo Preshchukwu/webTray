@@ -20,14 +20,17 @@ const shouldRedirectToSignin = () => {
   if (typeof window === "undefined") return false;
   const path = window.location.pathname;
   // Don't redirect if we are already on auth pages or a storefront
-  const isAuthPage =
-    path === "/signin" ||
-    path === "/signup" ||
-    path.startsWith("/forgot-password") ||
-    path.startsWith("/reset-password") ||
-    path.startsWith("/otp-verification");
-  const isStorePage = path.startsWith("/store/");
-  return !isAuthPage && !isStorePage;
+    const isAuthPage =
+      path === "/signin" ||
+      path === "/signup" ||
+      path.startsWith("/forgot-password") ||
+      path.startsWith("/reset-password") ||
+      path.startsWith("/otp-verification");
+    const isStorePage = path !== "/" && !isAuthPage && ![
+      "/dashboard", "/profile", "/register-business", "/welcome",
+      "/contact-us", "/feature-page", "/pricing-page", "/wait-list"
+    ].some(p => path.startsWith(p));
+    return !isAuthPage && !isStorePage;
 };
 
 const api = axios.create({

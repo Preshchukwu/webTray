@@ -14,6 +14,8 @@ import type {
   ValidatedAccountApi,
   AddBankAccountPayload,
   DeleteBankAccountResponse,
+  RequestWithdrawalPayload,
+  WithdrawalResponse,
 } from "@/types";
 
 export type {
@@ -29,6 +31,8 @@ export type {
   ValidatedAccountApi,
   AddBankAccountPayload,
   DeleteBankAccountResponse,
+  RequestWithdrawalPayload,
+  WithdrawalResponse,
 } from "@/types";
 
 export const walletKeys = {
@@ -235,6 +239,40 @@ export const useWallet = () => {
     },
   });
 
+  const requestWithdrawalMutation = useMutation({
+    mutationFn: async (
+      payload: RequestWithdrawalPayload
+    ): Promise<WithdrawalResponse> => {
+      const body = {
+        amount: payload.amount,
+        bankAccountId: payload.bankAccountId,
+      };
+      const { data } = await api.post<ApiResponse<WithdrawalResponse>>(
+        `/wallet/${storeId}/withdrawals/request`,
+        body
+      );
+      if (data?.responseSuccessful) {
+        return data.responseBody;
+      }
+      throw new Error(data?.responseMessage || "Failed to request withdrawal");
+    },
+    onSuccess: (responseData) => {
+      toast.success("Withdrawal request submitted successfully");
+      // Invalidate balance and transactions to refresh data
+      if (storeId !== undefined) {
+        queryClient.invalidateQueries({
+          queryKey: walletKeys.balance(storeId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: walletKeys.transactions(storeId),
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to request withdrawal");
+    },
+  });
+
   return {
     walletBalance: balanceQuery.data,
     isFetchingBalance: balanceQuery.isLoading,
@@ -266,5 +304,8 @@ export const useWallet = () => {
 
     deleteBankAccount: deleteBankAccountMutation.mutateAsync,
     isDeletingBankAccount: deleteBankAccountMutation.isPending,
+
+    requestWithdrawal: requestWithdrawalMutation.mutateAsync,
+    isRequestingWithdrawal: requestWithdrawalMutation.isPending,
   };
 };

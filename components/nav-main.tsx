@@ -59,7 +59,7 @@ export function NavMain({
               >
                 <div className="relative p-2.5 rounded-2xl bg-gray-100">
                   {item.icon && <item.icon className="w-6 h-6" />}
-                  <Lock className="absolute -top-1 -right-1 w-3.5 h-3.5 text-[#808080] bg-white rounded-full p-0.5" />
+                  <Lock className="absolute -top-1 -right-1 w-3.5 h-3.5 text-red-500 bg-white rounded-full p-0.5" />
                 </div>
                 <span className="text-[11px] font-semibold tracking-tight text-[#808080]">
                   {item.title}
@@ -124,7 +124,7 @@ export function NavMain({
                     <span className="font-normal text-[16px] leading-[100%] text-[#808080]">
                       {item.title}
                     </span>
-                    <Lock className="ml-auto w-4 h-4 text-[#808080]" />
+                    <Lock className="ml-auto w-4 h-4 text-red-500" />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )

@@ -358,6 +358,7 @@ export interface SubscribePayload {
   businessId: number;
   tier: "STARTER" | "GROWTH" | "BUSINESS";
   callback_url: string;
+  coupon_code?: string;
 }
 
 export interface SubscribeResponse {
@@ -488,4 +489,19 @@ export interface AddBankAccountPayload {
 
 export interface DeleteBankAccountResponse {
   message: string;
+}
+
+export interface RequestWithdrawalPayload {
+  amount: number;
+  bankAccountId: number;
+}
+
+export interface WithdrawalResponseBody {
+  updatedWallet: WalletBalance;
+  transaction: WalletTransaction;
+}
+
+export interface WithdrawalResponse {
+  updatedWallet: WalletBalance;
+  transaction: WalletTransaction;
 }

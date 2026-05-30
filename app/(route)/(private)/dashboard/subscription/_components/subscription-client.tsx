@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect  } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { CircleAlert, CheckCircle2, Zap, TrendingUp, Briefcase, Check, Loader2 } from "lucide-react";
+import { CircleAlert, CheckCircle2, Zap, TrendingUp, Briefcase, Check, Loader2, Tag } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PricingPlan } from "@/types";
 import { cn } from "@/lib/utils";
@@ -22,6 +24,8 @@ export function SubscriptionClient() {
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
   const [subscribingTier, setSubscribingTier] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; plan: PricingPlan | null }>({ open: false, plan: null });
+  const [couponCode, setCouponCode] = useState("");
   const { 
     subscription, 
     plans, 
@@ -52,20 +56,12 @@ export function SubscriptionClient() {
     }
   }, [verifyData, refetchSubscription, router]);
 
-  const initiateSubscription = (plan: PricingPlan) => {
-    setSelectedPlan(plan);
-    setIsCheckoutModalOpen(true);
-  };
-
-  const handleConfirmSubscribe = async () => {
-    if (!selectedPlan) return;
-    
-    const tier = selectedPlan.tier as "STARTER" | "GROWTH" | "BUSINESS";
+  const handleSubscribe = async (tier: "STARTER" | "GROWTH" | "BUSINESS", coupon?: string) => {
     try {
       setSubscribingTier(tier);
       const callback_url = `${window.location.origin}/dashboard/subscription`;
-      const response = await subscribe({ tier, callback_url });
-      
+      const response = await subscribe({ tier, callback_url, ...(coupon?.trim() ? { coupon_code: coupon.trim() } : {}) });
+
       if (response.authorization_url) {
         window.location.href = response.authorization_url;
       }
@@ -74,6 +70,29 @@ export function SubscriptionClient() {
       setIsCheckoutModalOpen(false);
       toast.error(error.message || "Failed to initialize subscription");
     }
+  };
+
+  const initiateSubscription = (plan: PricingPlan) => {
+    setSelectedPlan(plan);
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleCheckoutModalConfirm = async () => {
+    if (!selectedPlan) return;
+    
+    const tier = selectedPlan.tier as "STARTER" | "GROWTH" | "BUSINESS";
+    await handleSubscribe(tier);
+  };
+
+  const openConfirmModal = (plan: PricingPlan) => {
+    setCouponCode("");
+    setConfirmModal({ open: true, plan });
+  };
+
+  const handleConfirmSubscribe = () => {
+    if (!confirmModal.plan) return;
+    setConfirmModal({ open: false, plan: null });
+    handleSubscribe(confirmModal.plan.tier as "STARTER" | "GROWTH" | "BUSINESS", couponCode);
   };
 
   const handleCancelPlan = async () => {
@@ -269,10 +288,10 @@ export function SubscriptionClient() {
               <div className="mt-auto pt-8">
                 <button
                   disabled={isCurrent || isSubscribing}
-                  onClick={() => initiateSubscription(plan)}
+                  onClick={() => !isCurrent && openConfirmModal(plan)}
                   className={cn(
                     "w-full py-3 px-6 rounded-full font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2",
-                    isCurrent 
+                    isCurrent
                       ? "bg-white border border-blue-600 text-blue-600 cursor-default"
                       : isUpgrade
                         ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg"
@@ -286,18 +305,6 @@ export function SubscriptionClient() {
           );
         })}
       </div>
-      </div>
-
-      {/* Payment Section */}
-      <div className="flex flex-col gap-4 rounded-[24px] p-4 bg-[#FFFFFF]">
-        <h2 className="text-[16px] font-bold text-[#4D4D4D]">Payment</h2>
-        <div className="flex items-center gap-3 text-gray-600 p-1">
-          <div className="flex -space-x-2">
-             <div className="h-6 w-6 rounded-full bg-blue-600" />
-             <div className="h-6 w-6 rounded-full bg-blue-400/50" />
-          </div>
-          <span className="font-regular text-[16px] text-[#4D4D4D]">Mastercard • • • • 1555</span>
-        </div>
       </div>
 
       <hr className="border-gray-100" />
@@ -412,6 +419,80 @@ export function SubscriptionClient() {
         </DialogContent>
       </Dialog> */}
 
+      {/* Confirm Plan Change Modal */}
+      <Dialog open={confirmModal.open} onOpenChange={(open) => !open && setConfirmModal({ open: false, plan: null })}>
+        <DialogContent className="sm:max-w-[420px] p-8 border-0 shadow-xl rounded-[24px] gap-0" showCloseButton={false}>
+          <div className="flex flex-col items-center text-center gap-6">
+            <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center">
+              <CheckCircle2 className="h-6 w-6 text-[#365BEB]" strokeWidth={2.5} />
+            </div>
+
+            <DialogHeader className="w-full">
+              <DialogTitle className="text-xl font-bold text-[#111827] mb-1">
+                Confirm Plan Change
+              </DialogTitle>
+              <DialogDescription className="text-sm text-[#808080] leading-relaxed">
+                You are about to switch to the{" "}
+                <span className="font-semibold text-[#111827]">{confirmModal.plan?.name}</span>{" "}
+                plan. Please review your selection below.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="w-full bg-gray-50 rounded-2xl divide-y divide-gray-100">
+              <div className="flex justify-between items-center px-4 py-3 text-sm">
+                <span className="text-[#808080]">Selected Plan</span>
+                <span className="font-semibold text-[#111827]">{confirmModal.plan?.name}</span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-3 text-sm">
+                <span className="text-[#808080]">Billing Cycle</span>
+                <span className="font-semibold text-[#111827] capitalize">
+                  {confirmModal.plan?.duration?.toLowerCase() || "Monthly"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-3 text-sm">
+                <span className="text-[#808080]">Total Amount</span>
+                <span className="font-bold text-[#365BEB]">
+                  ₦{confirmModal.plan ? parseInt(confirmModal.plan.price).toLocaleString() : "0"}
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full flex flex-col gap-1.5">
+              <Label className="text-sm font-medium text-[#4D4D4D] text-left flex items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-[#808080]" />
+                Promo code{" "}
+                <span className="text-[#808080] font-normal">(optional)</span>
+              </Label>
+              <Input
+                placeholder="Enter promo code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="rounded-xl border-gray-200 text-sm"
+              />
+            </div>
+
+            <div className="w-full flex flex-col gap-3">
+              <button
+                onClick={handleConfirmSubscribe}
+                disabled={isSubscribing}
+                className="w-full py-3.5 rounded-full bg-[#365BEB] hover:bg-[#365BEB]/90 text-white font-semibold text-sm transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                {isSubscribing && subscribingTier === confirmModal.plan?.tier
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : "Confirm & Proceed to Payment"
+                }
+              </button>
+              <button
+                onClick={() => setConfirmModal({ open: false, plan: null })}
+                className="text-sm text-[#808080] hover:text-[#4D4D4D] transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Success Modal */}
       <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>
         <DialogContent className="sm:max-w-[500px] p-10 py-16 border-0 shadow-2xl rounded-[32px] gap-0" showCloseButton={false}>
@@ -471,7 +552,7 @@ export function SubscriptionClient() {
 
             <div className="flex flex-col gap-3">
               <Button 
-                onClick={handleConfirmSubscribe}
+                onClick={handleCheckoutModalConfirm}
                 disabled={isSubscribing}
                 className="w-full h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[16px] shadow-lg shadow-blue-200 transition-all active:scale-[0.98] disabled:opacity-70"
               >
