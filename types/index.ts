@@ -505,3 +505,66 @@ export interface WithdrawalResponse {
   updatedWallet: WalletBalance;
   transaction: WalletTransaction;
 }
+
+export interface InvoiceItemPayload {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+export interface CreateInvoicePayload {
+  customerName: string;
+  dueDate: string;
+  items: InvoiceItemPayload[];
+}
+
+export interface InvoiceItem {
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface InvoiceStore {
+  id: number;
+  storeName: string | null;
+  logoUrl: string | null;
+  email: string | null;
+  phone: string | null;
+  currency: string;
+}
+
+export interface Invoice {
+  id: number;
+  storeId: number;
+  invoiceNumber: string;
+  customerName: string;
+  dueDate: string;
+  items: InvoiceItem[];
+  totalAmount: string;
+  status: string;
+  slug: string;
+  paystackPageId: string | null;
+  paystackUrl: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  store: InvoiceStore;
+}
+
+export interface InvoicesMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface GetInvoicesResponse {
+  data: Invoice[];
+  meta: InvoicesMeta;
+}
+
+export interface PayInvoiceResponse {
+  authorizationUrl: string;
+  accessCode: string;
+  reference: string;
+}

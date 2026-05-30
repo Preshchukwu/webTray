@@ -38,6 +38,7 @@ import {
   useWallet,
   type WalletTransactionStatus,
 } from "@/hooks/use-wallet";
+import type { Invoice, InvoiceItem } from "@/types";
 import { formatCurrency } from "@/lib/format-currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WithdrawalBankAccounts } from "./withdrawal-bank-accounts";
@@ -47,65 +48,13 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { HasBusinessAlert } from "@/components/hasBusinessAlert";
 import { RequestWithdrawalModal } from "./request-withdrawal-modal";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface InvoiceItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Invoice {
-  id: string;
-  customerName: string;
-  items: InvoiceItem[];
-  total: number;
-  dueDate: string;
-  status: "paid" | "pending" | "overdue";
-  createdAt: string;
-}
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const INITIAL_INVOICES: Invoice[] = [
-  {
-    id: "INV-001",
-    customerName: "Adaeze Obi",
-    items: [{ name: "Custom Dress", quantity: 1, price: 45000 }],
-    total: 45000,
-    dueDate: "2026-06-01",
-    status: "pending",
-    createdAt: "2026-05-10",
-  },
-  {
-    id: "INV-002",
-    customerName: "Emeka Chukwu",
-    items: [
-      { name: "Ankara Suit", quantity: 2, price: 35000 },
-      { name: "Tie & Pocket Square", quantity: 1, price: 8000 },
-    ],
-    total: 78000,
-    dueDate: "2026-05-25",
-    status: "paid",
-    createdAt: "2026-05-05",
-  },
-  {
-    id: "INV-003",
-    customerName: "Ngozi Eze",
-    items: [{ name: "Bridal Outfit", quantity: 1, price: 120000 }],
-    total: 120000,
-    dueDate: "2026-05-15",
-    status: "overdue",
-    createdAt: "2026-04-30",
-  },
-];
-
-const FILTER_OPTIONS = ["All", "Credit", "Debit", "Pending", "Failed"];
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatAmount(amount: number) {
   return formatCurrency(amount);
 }
 
 function formatDate(dateStr: string) {
+  if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString("en-NG", {
     day: "numeric",
     month: "short",
@@ -113,27 +62,24 @@ function formatDate(dateStr: string) {
   });
 }
 
-function nextInvoiceId(invoices: Invoice[]) {
-  const max = invoices.reduce((acc, inv) => {
-    const num = parseInt(inv.id.replace("INV-", ""), 10);
-    return Math.max(acc, isNaN(num) ? 0 : num);
-  }, 0);
-  return `INV-${String(max + 1).padStart(3, "0")}`;
-}
 
 // ─── Status badges ────────────────────────────────────────────────────────────
-function InvoiceStatusBadge({ status }: { status: Invoice["status"] }) {
-  const map: Record<Invoice["status"], string> = {
+function InvoiceStatusBadge({ status }: { status: string }) {
+  const normalizedStatus = status?.toLowerCase() || "";
+  const map: Record<string, string> = {
     paid: "bg-green-100 text-green-700",
     pending: "bg-yellow-100 text-yellow-700",
     overdue: "bg-red-100 text-red-700",
   };
+  const className = map[normalizedStatus] || "bg-gray-100 text-gray-700";
   return (
-    <span className={cn("px-2 py-1 rounded-full text-xs font-medium capitalize", map[status])}>
+    <span className={cn("px-2 py-1 rounded-full text-xs font-medium capitalize", className)}>
       {status}
     </span>
   );
 }
+
+const FILTER_OPTIONS = ["All", "Credit", "Debit", "Pending", "Failed"];
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: WalletTransactionStatus }) {
@@ -220,10 +166,11 @@ function BalanceCard({
 const EMPTY_ITEM: InvoiceItem = { name: "", quantity: 1, price: 0 };
 
 function InvoiceSection() {
-  const [invoices, setInvoices] = useState<Invoice[]>(INITIAL_INVOICES);
+  const { invoices: invoicesData, isFetchingInvoices, createInvoice, isCreatingInvoice } = useWallet();
+  const invoices = invoicesData?.data || [];
+
   const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const [formCustomerName, setFormCustomerName] = useState("");
   const [formDueDate, setFormDueDate] = useState("");
@@ -232,18 +179,9 @@ function InvoiceSection() {
   const formTotal = formItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
   function openCreate() {
-    setEditingId(null);
     setFormCustomerName("");
     setFormDueDate("");
     setFormItems([{ ...EMPTY_ITEM }]);
-    setShowModal(true);
-  }
-
-  function openEdit(invoice: Invoice) {
-    setEditingId(invoice.id);
-    setFormCustomerName(invoice.customerName);
-    setFormDueDate(invoice.dueDate);
-    setFormItems(invoice.items.map((i) => ({ ...i })));
     setShowModal(true);
   }
 
@@ -261,7 +199,7 @@ function InvoiceSection() {
     );
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!formCustomerName.trim()) {
       toast.error("Customer name is required.");
       return;
@@ -275,37 +213,20 @@ function InvoiceSection() {
       return;
     }
 
-    const total = formItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
-    const today = new Date().toISOString().split("T")[0];
-
-    if (editingId) {
-      setInvoices((prev) =>
-        prev.map((inv) =>
-          inv.id === editingId
-            ? { ...inv, customerName: formCustomerName, dueDate: formDueDate, items: formItems, total }
-            : inv
-        )
-      );
-      toast.success("Invoice updated.");
-    } else {
-      const newInvoice: Invoice = {
-        id: nextInvoiceId(invoices),
+    try {
+      await createInvoice({
         customerName: formCustomerName,
-        items: formItems,
-        total,
-        dueDate: formDueDate,
-        status: "pending",
-        createdAt: today,
-      };
-      setInvoices((prev) => [newInvoice, ...prev]);
-      toast.success("Invoice created!");
+        dueDate: new Date(formDueDate).toISOString().split('T')[0],
+        items: formItems.map(i => ({ name: i.name, quantity: i.quantity, price: i.price }))
+      });
+      setShowModal(false);
+    } catch (error) {
+      // Error handled by hook toast
     }
-
-    setShowModal(false);
   }
 
   function copyLink(invoice: Invoice) {
-    const link = `${window.location.origin}/invoice/${invoice.id}`;
+    const link = `${window.location.origin}/invoice/${invoice.slug}`;
     navigator.clipboard.writeText(link);
     setCopiedId(invoice.id);
     toast.success("Invoice link copied!");
@@ -336,7 +257,12 @@ function InvoiceSection() {
           </div>
         </CardHeader>
         <CardContent>
-          {invoices.length === 0 ? (
+          {isFetchingInvoices ? (
+            <div className="py-14 text-center flex flex-col items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <p className="text-sm text-[#808080]">Loading invoices...</p>
+            </div>
+          ) : invoices.length === 0 ? (
             <div className="py-14 text-center flex flex-col items-center gap-3">
               <FileText className="w-10 h-10 text-gray-300" />
               <p className="text-sm text-[#808080]">No invoices yet. Create your first one.</p>
@@ -360,10 +286,10 @@ function InvoiceSection() {
                       key={inv.id}
                       className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
                     >
-                      <td className="py-4 pr-4 text-sm font-semibold text-[#365BEB]">{inv.id}</td>
+                      <td className="py-4 pr-4 text-sm font-semibold text-[#365BEB]">{inv.invoiceNumber}</td>
                       <td className="py-4 pr-4 text-sm text-[#111827]">{inv.customerName}</td>
                       <td className="py-4 pr-4 text-sm font-semibold text-[#111827]">
-                        {formatAmount(inv.total)}
+                        {formatAmount(Number(inv.totalAmount))}
                       </td>
                       <td className="py-4 pr-4 text-sm text-[#4D4D4D] whitespace-nowrap">
                         {formatDate(inv.dueDate)}
@@ -386,14 +312,6 @@ function InvoiceSection() {
                             )}
                             {copiedId === inv.id ? "Copied" : "Copy Link"}
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="rounded-full h-8 w-8 p-0 text-[#808080] hover:text-[#365BEB] hover:bg-blue-50"
-                            onClick={() => openEdit(inv)}
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -405,12 +323,12 @@ function InvoiceSection() {
         </CardContent>
       </Card>
 
-      {/* Create / Edit Modal */}
+      {/* Create Modal */}
       <Dialog open={showModal} onOpenChange={(open) => !open && setShowModal(false)}>
         <DialogContent className="sm:max-w-[560px] rounded-[24px] p-0 overflow-hidden gap-0">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
             <DialogTitle className="text-[#111827] font-bold text-xl">
-              {editingId ? "Edit Invoice" : "Create Invoice"}
+              Create Invoice
             </DialogTitle>
           </DialogHeader>
 
@@ -510,8 +428,9 @@ function InvoiceSection() {
             <Button
               className="bg-[#365BEB] hover:bg-[#365BEB]/90 text-white rounded-full flex-1"
               onClick={handleSave}
+              disabled={isCreatingInvoice}
             >
-              {editingId ? "Save Changes" : "Create & Get Link"}
+              {isCreatingInvoice ? "Creating..." : "Create & Get Link"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -519,6 +438,7 @@ function InvoiceSection() {
     </>
   );
 }
+
 
 // ─── Transaction History ──────────────────────────────────────────────────────
 function TransactionHistory() {

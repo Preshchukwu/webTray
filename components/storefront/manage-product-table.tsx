@@ -115,14 +115,6 @@ const ProductCard = React.memo<{
       return () => clearInterval(interval);
     }, []);
 
-    const handleWhatsAppShare = () => {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const productUrl = slug ? `${origin}/store/${slug}/product/${product.id}` : origin;
-      const price = Number(product.price).toLocaleString();
-      const message = `Hey! Check out *${product.name}* 🛍️\n💰 ₦${price}\n\n${product.description ? product.description + "\n\n" : ""}👉 ${productUrl}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
-    };
-
     const hasNoImage = !imgSrc || imgError;
     const hasImages = product.images && product.images.length > 0;
 
@@ -340,17 +332,7 @@ const ProductCard = React.memo<{
               <span>Featured</span>
             </label>
 
-            {/* WhatsApp Share */}
-            <button
-              onClick={handleWhatsAppShare}
-              title="Share on WhatsApp"
-              aria-label={`Share ${product.name} on WhatsApp`}
-              className={`ml-auto flex items-center justify-center w-8 h-8 rounded-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors duration-200 ${
-                waBounce ? "animate-bounce" : ""
-              }`}
-            >
-              <WhatsAppIcon className="w-4 h-4" />
-            </button>
+            
           </div>
 
           <div className="flex items-center gap-2 mt-4">
@@ -478,7 +460,7 @@ export default function ManageProductTable() {
         setEditingProduct(current);
       }
     }
-  }, [storeProducts, isEditSheetOpen, editingProduct?.id]);
+  }, [storeProducts, isEditSheetOpen, editingProduct?.id, editingProduct]);
 
 
 

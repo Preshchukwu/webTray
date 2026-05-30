@@ -16,6 +16,10 @@ import type {
   DeleteBankAccountResponse,
   RequestWithdrawalPayload,
   WithdrawalResponse,
+  CreateInvoicePayload,
+  Invoice,
+  GetInvoicesResponse,
+  PayInvoiceResponse,
 } from "@/types";
 
 export type {
@@ -33,6 +37,10 @@ export type {
   DeleteBankAccountResponse,
   RequestWithdrawalPayload,
   WithdrawalResponse,
+  CreateInvoicePayload,
+  Invoice,
+  GetInvoicesResponse,
+  PayInvoiceResponse,
 } from "@/types";
 
 export const walletKeys = {
@@ -44,6 +52,8 @@ export const walletKeys = {
   banks: () => [...walletKeys.all, "banks"] as const,
   bankAccounts: (storeId: number | string | undefined) =>
     [...walletKeys.all, "bank-accounts", storeId] as const,
+  invoices: (storeId: number | string | undefined) =>
+    [...walletKeys.all, "invoices", storeId] as const,
 };
 
 function parseListBody<T>(
@@ -273,6 +283,62 @@ export const useWallet = () => {
     },
   });
 
+  const invoicesQuery = useQuery({
+    queryKey: walletKeys.invoices(storeId),
+    queryFn: async (): Promise<GetInvoicesResponse> => {
+      const { data } = await api.get<ApiResponse<GetInvoicesResponse>>(
+        `/wallet/${storeId}/invoices`
+      );
+      if (data?.responseSuccessful) {
+        return data.responseBody;
+      }
+      throw new Error(data?.responseMessage || "Failed to fetch invoices");
+    },
+    enabled: !!storeId,
+  });
+
+  const createInvoiceMutation = useMutation({
+    mutationFn: async (payload: CreateInvoicePayload): Promise<Invoice> => {
+      const { data } = await api.post<ApiResponse<Invoice>>(
+        `/wallet/${storeId}/invoices`,
+        payload
+      );
+      if (data?.responseSuccessful) {
+        return data.responseBody;
+      }
+      throw new Error(data?.responseMessage || "Failed to create invoice");
+    },
+    onSuccess: () => {
+      toast.success("Invoice created successfully");
+      if (storeId !== undefined) {
+        queryClient.invalidateQueries({
+          queryKey: walletKeys.invoices(storeId),
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create invoice");
+    },
+  });
+
+  const payInvoiceMutation = useMutation({
+    mutationFn: async (invoiceId: number | string): Promise<PayInvoiceResponse> => {
+      const { data } = await api.post<ApiResponse<PayInvoiceResponse>>(
+        `/wallet/${storeId}/invoices/${invoiceId}/pay`
+      );
+      if (data?.responseSuccessful) {
+        return data.responseBody;
+      }
+      throw new Error(data?.responseMessage || "Failed to initialize payment");
+    },
+    onSuccess: () => {
+      toast.success("Payment initialized successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to initialize payment");
+    },
+  });
+
   return {
     walletBalance: balanceQuery.data,
     isFetchingBalance: balanceQuery.isLoading,
@@ -307,5 +373,16 @@ export const useWallet = () => {
 
     requestWithdrawal: requestWithdrawalMutation.mutateAsync,
     isRequestingWithdrawal: requestWithdrawalMutation.isPending,
+
+    invoices: invoicesQuery.data,
+    isFetchingInvoices: invoicesQuery.isLoading,
+    invoicesError: invoicesQuery.error,
+    refetchInvoices: invoicesQuery.refetch,
+
+    createInvoice: createInvoiceMutation.mutateAsync,
+    isCreatingInvoice: createInvoiceMutation.isPending,
+
+    payInvoice: payInvoiceMutation.mutateAsync,
+    isPayingInvoice: payInvoiceMutation.isPending,
   };
 };
