@@ -40,9 +40,13 @@ export interface PaystackVerifyResponse {
  */
 export const getStoreBySlug = async (slug: string) => {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(`${BASE_URL}/storefront/${slug}`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      next: { revalidate: 3600 },
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     const data = await res.json();
     if (data?.responseSuccessful) {
       return data.responseBody.store;
@@ -55,13 +59,46 @@ export const getStoreBySlug = async (slug: string) => {
 };
 
 /**
+ * Fetch store details + categories by slug (Server-side)
+ */
+export const getStorefront = async (slug: string) => {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(`${BASE_URL}/storefront/${slug}`, {
+      next: { revalidate: 3600 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    const data = await res.json();
+    if (data?.responseSuccessful) {
+      return {
+        store: data.responseBody.store ?? null,
+        categories: data.responseBody.categories ?? [],
+      };
+    }
+    return { store: null, categories: [] };
+  } catch (error) {
+    console.error("Error fetching storefront:", error);
+    return { store: null, categories: [] };
+  }
+};
+
+/**
  * Fetch all products for a store (Server-side)
  */
 export const getStoreProducts = async (slug: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/storefront/products/${slug}?limit=1000`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(
+      `${BASE_URL}/storefront/products/${slug}?limit=1000`,
+      {
+        next: { revalidate: 3600 },
+        signal: controller.signal,
+      }
+    );
+    clearTimeout(timeout);
     const data = await res.json();
     if (data?.responseSuccessful) {
       return data.responseBody.products || [];
