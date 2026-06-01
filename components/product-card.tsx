@@ -28,7 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const handleWhatsAppShare = (e: React.MouseEvent) => {
     e.stopPropagation();
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const productUrl = `${origin}/store/${slug}/product/${product.id}`;
+    const productUrl = `${origin}/${slug}/product/${product.id}`;
     const shareText = `Check out ${product.name}${store?.storeName ? ` on ${store.storeName}` : ""} — ₦${parseFloat(product.price).toLocaleString()}`;
     const whatsappMessage = encodeURIComponent(`${shareText}\n${productUrl}`);
     const phone = store?.phone ? store.phone.replace(/[^0-9]/g, '') : '';
