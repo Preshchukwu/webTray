@@ -3,8 +3,9 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import { useInvoice } from "@/hooks/use-invoice";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function formatAmount(amount: number | string) {
   return new Intl.NumberFormat("en-NG", {
@@ -29,7 +30,44 @@ interface PageProps {
 
 export default function InvoicePage(props: PageProps) {
   const { id: slug } = use(props.params);
-  const { invoice, isLoadingInvoice, invoiceError, payInvoice, isPayingInvoice } = useInvoice(slug);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const reference = searchParams.get("reference");
+
+  const {
+    invoice,
+    isLoadingInvoice,
+    invoiceError,
+    payInvoice,
+    isPayingInvoice,
+    verifyInvoice,
+    isVerifyingInvoice,
+    refetchInvoice
+  } = useInvoice(slug);
+
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  useEffect(() => {
+    const handleVerify = async () => {
+      if (reference && !isVerifying) {
+        setIsVerifying(true);
+        try {
+          const res = await verifyInvoice(reference);
+          if (res.verified) {
+            toast.success("Payment successful!");
+            await refetchInvoice();
+            router.replace(`/invoice/${slug}`);
+          }
+        } catch (error) {
+          // Error already handled by toast in useInvoice hook
+          router.replace(`/invoice/${slug}`);
+        } finally {
+          setIsVerifying(false);
+        }
+      }
+    };
+    handleVerify();
+  }, [reference, verifyInvoice, refetchInvoice, router, slug, isVerifying]);
 
   const handlePay = async () => {
     if (!invoice) return;
@@ -37,6 +75,7 @@ export default function InvoicePage(props: PageProps) {
       const res = await payInvoice({
         invoiceId: invoice.id,
         storeId: invoice.storeId,
+        callbackUrl: window.location.href,
       });
       if (res.authorizationUrl) {
         window.location.href = res.authorizationUrl;
@@ -48,11 +87,13 @@ export default function InvoicePage(props: PageProps) {
     }
   };
 
-  if (isLoadingInvoice) {
+  if (isLoadingInvoice || isVerifyingInvoice) {
     return (
       <div className="min-h-screen bg-[#F8F8F8] flex flex-col items-center justify-center py-10 px-4">
         <Loader2 className="w-10 h-10 animate-spin text-[#365BEB] mb-4" />
-        <p className="text-gray-500 font-medium">Loading Invoice...</p>
+        <p className="text-gray-500 font-medium">
+          {isVerifyingInvoice ? "Verifying Payment..." : "Loading Invoice..."}
+        </p>
       </div>
     );
   }

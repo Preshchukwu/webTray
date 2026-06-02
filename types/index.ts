@@ -569,6 +569,12 @@ export interface PayInvoiceResponse {
   reference: string;
 }
 
+export interface VerifyInvoiceResponse {
+  verified: boolean;
+  amount: number;
+  invoice: Invoice;
+}
+
 export interface Notification {
   id: number;
   storeId?: number;
@@ -576,6 +582,8 @@ export interface Notification {
   message: string;
   isRead?: boolean;
   type?: string;
+  link?: string | null;
+  isDeleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

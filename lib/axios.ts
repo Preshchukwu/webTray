@@ -44,6 +44,20 @@ export const publicApi = axios.create({
   withCredentials: true,
 });
 
+publicApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Extract backend error message
+    if (error.response?.data) {
+      const backendMessage = error.response.data.responseMessage || error.response.data.message;
+      if (backendMessage) {
+        error.message = backendMessage;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // For handling multiple concurrent 401s
 let isRefreshing = false;
 let failedQueue: any[] = [];
@@ -170,6 +184,14 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (err) {
         return Promise.reject(err);
+      }
+    }
+
+    // Extract backend error message
+    if (error.response?.data) {
+      const backendMessage = error.response.data.responseMessage || error.response.data.message;
+      if (backendMessage) {
+        error.message = backendMessage;
       }
     }
 

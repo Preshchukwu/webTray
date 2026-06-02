@@ -51,13 +51,14 @@ export const useNotification = (storeId?: number | string) => {
   });
 
   const readNotificationMutation = useMutation({
-    mutationFn: async (id: number | string): Promise<void> => {
-      const { data } = await api.patch<ApiResponse<null>>(
+    mutationFn: async (id: number | string): Promise<Notification> => {
+      const { data } = await api.patch<ApiResponse<Notification>>(
         `/notifications/${storeId}/${id}/read`
       );
       if (!data?.responseSuccessful) {
         throw new Error(data?.responseMessage || "Failed to mark as read");
       }
+      return data.responseBody;
     },
     onSuccess: () => {
       if (storeId) {
