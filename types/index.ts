@@ -568,3 +568,27 @@ export interface PayInvoiceResponse {
   accessCode: string;
   reference: string;
 }
+
+export interface Notification {
+  id: number;
+  storeId?: number;
+  title?: string;
+  message: string;
+  isRead?: boolean;
+  type?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface NotificationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  unreadCount: number;
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[];
+  meta: NotificationMeta;
+}

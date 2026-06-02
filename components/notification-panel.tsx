@@ -10,6 +10,7 @@ import {
   Check,
   Package,
   X,
+  Loader2,
 } from "lucide-react";
 import {
   Sheet,
@@ -19,90 +20,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-type NotificationType = "order" | "payment" | "inventory" | "customer";
-
-interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  description: string;
-  time: string;
-  read: boolean;
-}
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: "N001",
-    type: "order",
-    title: "New Order Received",
-    description: "Adaeze Obi placed an order for ₦45,000",
-    time: "2 min ago",
-    read: false,
-  },
-  {
-    id: "N002",
-    type: "payment",
-    title: "Payment Confirmed",
-    description: "₦78,000 received for Order #INV-002",
-    time: "15 min ago",
-    read: false,
-  },
-  {
-    id: "N003",
-    type: "inventory",
-    title: "Low Stock Alert",
-    description: '"Custom Dress" has only 2 units left',
-    time: "1 hr ago",
-    read: false,
-  },
-  {
-    id: "N004",
-    type: "order",
-    title: "Order Status Updated",
-    description: "Order #ORD-291 has been marked as delivered",
-    time: "3 hrs ago",
-    read: true,
-  },
-  {
-    id: "N005",
-    type: "customer",
-    title: "New Customer",
-    description: "Emeka Chukwu just created an account",
-    time: "5 hrs ago",
-    read: true,
-  },
-  {
-    id: "N006",
-    type: "payment",
-    title: "Payment Failed",
-    description: "Payment for Order #ORD-188 could not be processed",
-    time: "Yesterday",
-    read: true,
-  },
-  {
-    id: "N007",
-    type: "inventory",
-    title: "Low Stock Alert",
-    description: '"Ankara Suit" has only 1 unit left',
-    time: "Yesterday",
-    read: true,
-  },
-  {
-    id: "N008",
-    type: "order",
-    title: "New Order Received",
-    description: "Ngozi Eze placed an order for ₦120,000",
-    time: "2 days ago",
-    read: true,
-  },
-];
+import { useActiveStore } from "@/hooks/use-active-store";
+import { useNotification } from "@/hooks/use-notification";
+import type { Notification } from "@/types";
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
 const TYPE_CONFIG: Record<
-  NotificationType,
+  string,
   { icon: React.ReactNode; bg: string; color: string }
 > = {
   order: {
@@ -125,44 +49,38 @@ const TYPE_CONFIG: Record<
     bg: "bg-purple-50",
     color: "text-purple-500",
   },
+  default: {
+    icon: <Bell className="w-4 h-4" />,
+    bg: "bg-gray-50",
+    color: "text-gray-500",
+  }
 };
 
 type FilterTab = "all" | "unread" | "orders" | "payments";
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function NotificationPanel({ bellClassName }: { bellClassName?: string }) {
-  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const { activeStore } = useActiveStore();
+  
+  const {
+    notifications,
+    meta,
+    isLoading,
+    readAll,
+    readNotification,
+    isReadingAll,
+    isReading
+  } = useNotification(activeStore?.id);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = meta?.unreadCount || 0;
 
   const filtered = notifications.filter((n) => {
-    if (activeTab === "unread") return !n.read;
+    if (activeTab === "unread") return !n.isRead;
     if (activeTab === "orders") return n.type === "order";
     if (activeTab === "payments") return n.type === "payment";
     return true;
   });
-
-  function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  }
-
-  function markRead(id: string) {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  }
-
-  function dismiss(id: string) {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }
-
-  const tabs: { key: FilterTab; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "unread", label: "Unread" },
-    { key: "orders", label: "Orders" },
-    { key: "payments", label: "Payments" },
-  ];
 
   return (
     <Sheet>
@@ -199,10 +117,18 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
             </div>
             {unreadCount > 0 && (
               <button
-                onClick={markAllRead}
-                className="flex items-center gap-1.5 text-xs font-medium text-[#365BEB] hover:text-[#365BEB]/80 transition-colors"
+                onClick={() => readAll()}
+                disabled={isReadingAll}
+                className={cn(
+                  "flex items-center gap-1.5 text-xs font-medium text-[#365BEB] hover:text-[#365BEB]/80 transition-colors",
+                  isReadingAll && "opacity-50 cursor-not-allowed"
+                )}
               >
-                <Check className="w-3.5 h-3.5" />
+                {isReadingAll ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Check className="w-3.5 h-3.5" />
+                )}
                 Mark all read
               </button>
             )}
@@ -210,10 +136,15 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
 
           {/* Filter tabs */}
           <div className="flex gap-1 mt-5 border-b border-gray-100">
-            {tabs.map((tab) => (
+            {[
+              { key: "all", label: "All" },
+              { key: "unread", label: "Unread" },
+              { key: "orders", label: "Orders" },
+              { key: "payments", label: "Payments" },
+            ].map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => setActiveTab(tab.key as FilterTab)}
                 className={cn(
                   "pb-3 px-3 text-sm font-medium transition-colors relative",
                   activeTab === tab.key
@@ -232,7 +163,12 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
 
         {/* Notification list */}
         <div className="flex-1 overflow-y-auto">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-20 px-6 text-center">
+              <Loader2 className="w-8 h-8 text-[#365BEB] animate-spin" />
+              <p className="text-sm font-semibold text-[#4D4D4D]">Loading notifications...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-20 px-6 text-center">
               <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
                 <Bell className="w-6 h-6 text-gray-300" />
@@ -243,14 +179,17 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
           ) : (
             <ul className="divide-y divide-gray-50">
               {filtered.map((notif) => {
-                const config = TYPE_CONFIG[notif.type];
+                const config = TYPE_CONFIG[notif.type || "default"] || TYPE_CONFIG.default;
                 return (
                   <li
                     key={notif.id}
-                    onClick={() => markRead(notif.id)}
+                    onClick={() => {
+                      if (!notif.isRead) readNotification(notif.id);
+                    }}
                     className={cn(
                       "flex items-start gap-3 px-5 py-4 cursor-pointer transition-colors group",
-                      notif.read ? "bg-white hover:bg-gray-50/70" : "bg-blue-50/30 hover:bg-blue-50/50"
+                      notif.isRead ? "bg-white hover:bg-gray-50/70" : "bg-blue-50/30 hover:bg-blue-50/50",
+                      isReading && "pointer-events-none"
                     )}
                   >
                     {/* Icon */}
@@ -270,32 +209,32 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
                         <p
                           className={cn(
                             "text-sm leading-snug",
-                            notif.read
+                            notif.isRead
                               ? "font-medium text-[#4D4D4D]"
                               : "font-semibold text-[#111827]"
                           )}
                         >
-                          {notif.title}
+                          {notif.title || "Notification"}
                         </p>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            dismiss(notif.id);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 shrink-0 text-gray-300 hover:text-gray-500 transition-all mt-0.5"
-                          aria-label="Dismiss"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
                       </div>
                       <p className="text-xs text-[#808080] mt-0.5 leading-relaxed">
-                        {notif.description}
+                        {notif.message}
                       </p>
-                      <p className="text-[11px] text-gray-400 mt-1.5">{notif.time}</p>
+                      {notif.createdAt && (
+                        <p className="text-[11px] text-gray-400 mt-1.5">
+                          {new Date(notif.createdAt).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      )}
                     </div>
 
                     {/* Unread dot */}
-                    {!notif.read && (
+                    {!notif.isRead && (
                       <div className="w-2 h-2 rounded-full bg-[#365BEB] shrink-0 mt-2" />
                     )}
                   </li>
@@ -304,18 +243,6 @@ export function NotificationPanel({ bellClassName }: { bellClassName?: string })
             </ul>
           )}
         </div>
-
-        {/* Footer */}
-        {notifications.length > 0 && (
-          <div className="shrink-0 px-5 py-4 border-t border-gray-100 bg-white">
-            <button
-              onClick={() => setNotifications([])}
-              className="w-full text-xs text-[#808080] hover:text-red-500 transition-colors font-medium text-center"
-            >
-              Clear all notifications
-            </button>
-          </div>
-        )}
       </SheetContent>
     </Sheet>
   );
