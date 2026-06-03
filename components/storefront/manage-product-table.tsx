@@ -223,7 +223,7 @@ const ProductCard = React.memo<{
                 src={imgSrc}
                 alt={product.name}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="max-w-full max-h-full object-contain transition-transform duration-500 group-hover:scale-105"
                 onError={() => setImgError(true)}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />

@@ -24,7 +24,6 @@ interface ProductCardPosterProps {
   slug?: string | null;
 }
 
-/* ─── Watermark ─────────────────────────────────────────────────── */
 function Watermark() {
   return (
     <div
@@ -34,18 +33,10 @@ function Watermark() {
       {Array.from({ length: 15 }).map((_, i) => (
         <span
           key={i}
+          className="absolute text-[13px] font-bold tracking-[0.15em] uppercase text-white/20 whitespace-nowrap rotate-[-28deg]"
           style={{
-            position: "absolute",
             top: `${(i % 5) * 22 - 8}%`,
             left: `${Math.floor(i / 5) * 40 - 15}%`,
-            transform: "rotate(-28deg)",
-            fontSize: "13px",
-            fontWeight: 700,
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            color: "white",
-            opacity: 0.18,
-            whiteSpace: "nowrap",
           }}
         >
           webtray
@@ -54,70 +45,6 @@ function Watermark() {
     </div>
   );
 }
-
-/* ─── Trust badge ────────────────────────────────────────────────── */
-function TrustBadge({ icon, label }: { icon: string; label: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-      <span style={{ fontSize: "13px" }}>{icon}</span>
-      <span
-        style={{
-          fontSize: "9px",
-          color: "#7A7365",
-          lineHeight: 1.3,
-          whiteSpace: "pre-line",
-        }}
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
-
-/* ─── Feature circle ─────────────────────────────────────────────── */
-function FeatureBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "2px",
-        padding: "1px 2px",
-        borderRight: "1px solid #E8E3DC",
-        flexShrink: 1,
-        minWidth: 0,
-        maxWidth: "36px",
-      }}
-    >
-      <span style={{ 
-        fontSize: "12px",
-        background: "#EDE8E1",
-        borderRadius: "50%",
-        width: "20px",
-        height: "20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}>{icon}</span>
-      <span
-        style={{
-          fontSize: "7px",
-          color: "#7A7365",
-          fontWeight: 600,
-          textAlign: "center",
-          lineHeight: 1.1,
-          whiteSpace: "normal",
-          wordBreak: "break-word",
-        }}
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
-
 
 function ProductPoster({
   product,
@@ -133,243 +60,134 @@ function ProductPoster({
 
   const featureBadges = [
     {
-      icon: <Tag style={{ width: 16, height: 16, color: "#7A7365" }} />,
+      icon: <Tag className="w-3.5 h-3.5 text-indigo-500" />,
       label: capitalizeFirstLetter(categoryName || "Product"),
     },
     {
       icon: product.quantity > 0 ? (
-        <CheckCircle2 style={{ width: 16, height: 16, color: "#7A7365" }} />
+        <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
       ) : (
-        <XCircle style={{ width: 16, height: 16, color: "#7A7365" }} />
+        <XCircle className="w-3.5 h-3.5 text-red-600" />
       ),
       label: product.quantity > 0 ? "In Stock" : "Out of Stock",
     },
     ...(product.feature
       ? [
           {
-            icon: <Star style={{ width: 16, height: 16, color: "#7A7365" }} />,
+            icon: <Star className="w-3.5 h-3.5 text-indigo-500" />,
             label: "Featured",
           },
         ]
       : [
           {
-            icon: <ShieldCheck style={{ width: 16, height: 16, color: "#7A7365" }} />,
+            icon: <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />,
             label: "Official",
           },
         ]),
   ];
 
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: "390px",
-        minWidth: "300px",
-        borderRadius: "6px",
-        padding: "5px",
-        border: "1px solid #E8E3DC",
-        background: "white",
-        overflow: "hidden",
-        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-        boxShadow: "rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset"
-      }}
-    >
-      {/* box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px; */}
-      {/* ── Image area ─────────────────────────────────────── */}
-      <div style={{ position: "relative", aspectRatio: "390 / 220", width: "100%", overflow: "hidden", borderRadius: "6px", border: "1px solid #E8E3DC" }}>
+    <div className="w-full rounded-xl bg-white overflow-hidden font-sans border">
+      <div className="relative w-full aspect-[16/11] bg-white p-4 flex items-center justify-center overflow-hidden border-b">
         {imgSrc ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={imgSrc}
             alt={product.name}
             crossOrigin="anonymous"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-            }}
+                className="max-w-full max-h-full object-contain"
           />
         ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              background: "linear-gradient(135deg, #E8E3DC 0%, #D4CEC6 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Package style={{ width: 56, height: 56, color: "#A8A09A" }} />
+          <div className="w-full h-full bg-gradient-to-br from-[#E8E3DC] to-[#D4CEC6] flex items-center justify-center">
+            <Package className="w-16 h-16 text-[#A8A09A]" />
           </div>
         )}
 
         <Watermark />
 
-        {/* Top-left badge */}
-        <div
-          style={{
-            position: "absolute",
-            top: "0px",
-            left: "12px",
-            background: "rgba(74, 103, 65, 0.90)",
-            color: "white",
-            fontSize: "8px",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            padding: "4px 10px 0px 10px",
-            borderTopRightRadius: "0px",
-            borderTopLeftRadius: "0px",
-            borderBottomRightRadius: "50px",
-            borderBottomLeftRadius: "50px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "5px",
-            backdropFilter: "blur(4px)",
-            // border: "3px solid red",
-            height: "55px",
-          }}
-        >
-          <LeafyGreen style={{ width: 16, height: 16, color: "white" }} />
-          <span>{product.feature ? "Featured Pick" : capitalizeFirstLetter(categoryName || "Product")}</span>
-        </div>
-
-        {/* Top-right store badge */}
-        <div
-          style={{
-            position: "absolute",
-            top: "6px",
-            right: "12px",
-            // background: "rgba(255,255,255,0.92)",
-            // borderRadius: "14px",
-            padding: "7px 10px",
-            display: "flex",
-            alignItems: "center",
-            gap: "7px",
-            // backdropFilter: "blur(4px)",
-            // boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              background: "#F5F0EA",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Store style={{ width: 16, height: 16, color: "#7A7365" }} />
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-white/95 backdrop-blur-sm rounded-xl px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-2 sm:gap-2.5 shadow-sm">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+            <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" />
           </div>
-          <div 
-          style={{ background: "#F5F0EA", padding: "4px 8px", borderRadius: "8px" }}
-          >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "#111827", lineHeight: 1.2 }}>
+          <div className="flex flex-col">
+            <div className="text-xs sm:text-sm font-extrabold text-gray-900 leading-tight">
               {storeName || "My Store"}
             </div>
-            <div style={{ fontSize: "9px", color: "#7A7365", lineHeight: 1.2 }}>
+            <div className="text-[9px] sm:text-[11px] text-gray-500 leading-tight">
               {capitalizeFirstLetter(categoryName || "Store")}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Content area ───────────────────────────────────── */}
-      <div style={{ background: "white", padding: "8px 12px", display: "flex", gap: "12px", flexGrow: 1, alignItems: "center" }}>
-        <div style={{ width: "50%", minWidth: 0 }}>
-          <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#111827", lineHeight: 1.25 }}>
+      <div className="bg-white p-5 sm:p-6 md:px-7 md:py-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 sm:gap-0">
+        
+        <div className="flex-1 min-w-0 sm:pr-5 flex flex-col w-full">
+          <h3 className="m-0 text-[20px] md:text-[28px] font-extrabold text-gray-900 leading-tight tracking-tight line-clamp-2 break-words">
             {capitalizeFirstLetter(product.name)}
           </h3>
-          <div style={{ position: "relative", textAlign: "center", margin: "8px 0" }}>
-            <hr style={{ border: "1px solid #E8E3DC", margin: 0 }} />
-          </div>
-          <p style={{ margin: 0, fontSize: "12px", color: "#4F4F4F", lineHeight: 1.4, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", wordBreak: "break-word" }}>
-            {product.description}
+          <div className="w-10 sm:w-12 h-[2px] bg-gray-200 my-3 sm:my-4" />
+          <p className="m-0 text-sm text-gray-500 leading-relaxed line-clamp-2">
+            {product.description || "No description provided."}
           </p>
         </div>
 
-        <div style={{ width: "1px", background: "#D4CEC6", alignSelf: "stretch" }} />
-
-        <div style={{ width: "50%", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px", minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, flexWrap: "nowrap", padding: "2px 0", overflow: "visible" }}>
-            {featureBadges.map((b) => (
-              <FeatureBadge key={b.label} icon={b.icon} label={b.label} />
-            ))}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", flexShrink: 0 }}>
-            <span style={{ fontSize: "16px", fontWeight: 700, color: "#111827", whiteSpace: "nowrap" }}>
-              ₦{price}
-            </span>
-            <span style={{ fontSize: "12px", color: "#7A7365", textDecoration: "line-through", whiteSpace: "nowrap" }}>
-              ₦{Math.round(Number(product.price) * 1.2).toLocaleString()}
-            </span>
-          </div>
+        <div className="flex flex-row sm:flex-col gap-3 sm:gap-3 sm:border-x border-gray-100 sm:px-5 shrink-0 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+          {featureBadges.map((b) => (
+            <div key={b.label} className="flex items-center gap-2.5 bg-blue-50/50 sm:bg-transparent px-3 py-1.5 sm:p-0 rounded-lg sm:rounded-none shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                {b.icon}
+              </div>
+              <span className="text-[13px] font-semibold text-gray-600 whitespace-nowrap">
+                {b.label}
+              </span>
+            </div>
+          ))}
         </div>
+
+        {/* Right: Price */}
+        <div className="sm:pl-5 flex justify-start sm:justify-end shrink-0 w-full sm:w-auto">
+          <span className="text-[20px] md:text-[28px] font-extrabold text-gray-900 tracking-tight whitespace-nowrap">
+            ₦{price}
+          </span>
+        </div>
+
       </div>
 
-      {/* ── Footer ─────────────────────────────────────────── */}
-      <div
-        style={{
-          background: "#EDE8E1",
-          padding: "10px 18px",
-          display: "flex",
-          alignItems: "center",
-          borderRadius: "10px",
-          justifyContent: "space-between",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <ShieldCheck style={{ width: 16, height: 16, color: "#000000" }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: "1px", color: "#111827", fontSize: "8px", fontWeight: 600, lineHeight: 1.1 }}>
-                <span>Secure</span>
-                <span>Payment</span>
-              </div>
-            </div>
-            <div style={{ width: "1px", height: "22px", background: "#D4CEC6" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <TruckElectric style={{ width: 16, height: 16, color: "#000000" }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: "1px", color: "#111827", fontSize: "8px", fontWeight: 600, lineHeight: 1.1 }}>
-                <span>Free</span>
-                <span>Delivery</span>
-              </div>
-            </div>
-            <div style={{ width: "1px", height: "22px", background: "#D4CEC6" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              <RefreshCcw style={{ width: 16, height: 16, color: "#000000" }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: "1px", color: "#111827", fontSize: "8px", fontWeight: 600, lineHeight: 1.1 }}>
-                <span>Easy</span>
-                <span>Returns</span>
-              </div>
-            </div>
+      <div className="bg-[#EBE6DE] p-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row items-center sm:justify-between gap-5 sm:gap-0">
+        <div className="flex items-center justify-around sm:justify-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" strokeWidth={1.5} />
+            <span className="text-[10px] sm:text-[11px] font-medium text-gray-600 leading-[1.2] flex flex-col">
+              <span>Secure</span>
+              <span>Payment</span>
+            </span>
+          </div>
+          <div className="w-[1px] h-4 sm:h-5 bg-[#D1D5DB] hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <TruckElectric className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" strokeWidth={1.5} />
+            <span className="text-[10px] sm:text-[11px] font-medium text-gray-600 leading-[1.2] flex flex-col">
+              <span>Worldwide</span>
+              <span>Delivery</span>
+            </span>
+          </div>
+          <div className="w-[1px] h-4 sm:h-5 bg-[#D1D5DB] hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <RefreshCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" strokeWidth={1.5} />
+            <span className="text-[10px] sm:text-[11px] font-medium text-gray-600 leading-[1.2] flex flex-col">
+              <span>Easy</span>
+              <span>Returns</span>
+            </span>
           </div>
         </div>
 
-        {/* WebTray branding */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0px" }}>
-          <div
-            style={{
-              width: "20px",
-              height: "20px",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ShoppingBag style={{ width: 14, height: 14, color: "#111827" }} />
-          </div>
-          <div>
-            <div style={{ fontSize: "9px", fontWeight: 800, color: "#111827", letterSpacing: "0.06em", textTransform: "uppercase", lineHeight: 1 }}>
+        <div className="flex items-center gap-2 shrink-0 border-t border-gray-300 sm:border-0 pt-4 sm:pt-0 w-full sm:w-auto justify-center sm:justify-end">
+          <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-gray-900" strokeWidth={2} />
+          <div className="flex flex-col">
+            <div className="text-[11px] sm:text-[13px] font-extrabold text-gray-900 tracking-wider uppercase leading-none">
               webtray
             </div>
-            <div style={{ fontSize: "7px", color: "#7A7365", letterSpacing: "0.04em", lineHeight: 1.2 }}>
+            <div className="text-[8px] sm:text-[9px] text-gray-600 tracking-wider leading-tight font-semibold mt-0.5">
               MARKETPLACE
             </div>
           </div>
@@ -379,7 +197,6 @@ function ProductPoster({
   );
 }
 
-/* ─── Modal ──────────────────────────────────────────────────────── */
 export function ProductCardPoster({
   open,
   onClose,
@@ -391,12 +208,6 @@ export function ProductCardPoster({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-
-  const price = Number(product.price).toLocaleString();
-  const productUrl =
-    slug && typeof window !== "undefined"
-      ? `${window.location.origin}/store/${slug}/product/${product.id}`
-      : null;
 
   async function captureCard(): Promise<string | null> {
     if (!cardRef.current) return null;
@@ -427,23 +238,20 @@ export function ProductCardPoster({
     }
   }
 
-
-
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-[420px] p-6 rounded-[24px] gap-0">
-        <DialogHeader className="mb-8">
-          <DialogTitle className="text-[17px] font-semibold text-[#111827]">
+      <DialogContent className="max-w-[600px] w-[95vw] sm:w-full p-4 sm:p-6 rounded-[24px] gap-0 max-h-[95vh] overflow-y-auto">
+        <DialogHeader className="mb-4 sm:mb-6">
+          <DialogTitle className="text-base sm:text-[17px] font-semibold text-[#111827]">
             Product Card
           </DialogTitle>
-          <p className="text-xs text-[#808080] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#6B7280] mt-1">
             Download or share a ready-to-post product card
           </p>
         </DialogHeader>
 
-        {/* Card preview */}
-        <div className="flex w-full justify-center overflow-auto md:overflow-hidden">
-          <div ref={cardRef} className="w-full max-w-[390px]">
+        <div className="flex w-full justify-center">
+          <div ref={cardRef} className="w-full max-w-[500px]">
             <ProductPoster
               product={product}
               storeName={storeName}
@@ -452,12 +260,11 @@ export function ProductCardPoster({
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 mt-8">
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button
             onClick={handleDownload}
             disabled={isExporting}
-            className="flex-1 rounded-full bg-[#111827] hover:bg-slate-800 text-white gap-2 h-10"
+            className="flex-1 rounded-full bg-[#111827] hover:bg-slate-800 text-white gap-2 h-11"
           >
             <Download className="w-4 h-4" />
             {isExporting ? "Exporting…" : "Download"}
@@ -465,7 +272,7 @@ export function ProductCardPoster({
           <Button
             onClick={() => setShareOpen(true)}
             disabled={isExporting}
-            className="flex-1 rounded-full bg-[#365BEB] hover:bg-[#365BEB]/90 text-white gap-2 h-10"
+            className="flex-1 rounded-full bg-[#365BEB] hover:bg-[#365BEB]/90 text-white gap-2 h-11"
           >
             <Share2 className="w-4 h-4" />
             Share
