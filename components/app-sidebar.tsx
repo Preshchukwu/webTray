@@ -9,6 +9,7 @@ import {
   IconLayoutDashboard,
   IconPackage,
   IconWallet,
+  IconSpeakerphone,
 } from "@tabler/icons-react"
 import { useAuthStore } from "@/store/useAuthStore"
 // import { NavDocuments } from "@/components/nav-documents"
@@ -59,6 +60,11 @@ const data = {
       title: "Wallet",
       url: "/dashboard/wallet",
       icon: IconWallet,
+    },
+    {
+      title: "Ads",
+      url: "/dashboard/ads",
+      icon: IconSpeakerphone,
     },
     // {
     //   title: "Analytics",
