@@ -9,6 +9,7 @@ import {
   IconLayoutDashboard,
   IconPackage,
   IconWallet,
+  IconSpeakerphone,
 } from "@tabler/icons-react"
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePlanAccess, INVENTORY_PATH } from "@/hooks/use-plan-access"
@@ -62,9 +63,14 @@ const data = {
       icon: IconWallet,
     },
     {
+      title: "Ads",
+      url: "/dashboard/ads",
+      icon: IconSpeakerphone,
+
       title: "Settings",
       url: "/dashboard/settings",
       icon: Settings,
+
     },
     // {
     //   title: "Analytics",
