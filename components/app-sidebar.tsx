@@ -66,12 +66,12 @@ const data = {
       title: "Ads",
       url: "/dashboard/ads",
       icon: IconSpeakerphone,
-
-      title: "Settings",
-      url: "/dashboard/settings",
-      icon: Settings,
-
     },
+    // {
+    //   title: "Settings",
+    //   url: "/dashboard/settings",
+    //   icon: Settings,
+    // }
     // {
     //   title: "Analytics",
     //   url: "/dashboard/analytics",
