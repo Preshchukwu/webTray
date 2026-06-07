@@ -13,6 +13,8 @@ export interface CreateOrderPayload {
   customerName: string;
   phone: string;
   orderItems: OrderItem[];
+  paymentMethod?: string;
+  onlinePaymentType?: string;
 }
 
 export interface UpdateOrderPayload {
@@ -20,6 +22,18 @@ export interface UpdateOrderPayload {
   phone?: string;
   orderItems?: OrderItem[];
   status?: string;
+}
+
+export interface UpdateOrderStatusPayload {
+  status: string;
+}
+
+export interface UpdateOrderResponseBody {
+  order: ApiOrder & {
+    customer?: Customer;
+    isDeleted?: boolean;
+    isOnline?: boolean;
+  };
 }
 
 // API Response Order Item Structure
@@ -140,7 +154,6 @@ export const useOrder = () => {
           }
         );
         if (data?.responseSuccessful) {
-          console.log(data.responseBody, "single order");
           return data.responseBody;
         }
         throw new Error(data?.responseMessage || "Failed to fetch order");
@@ -189,39 +202,61 @@ export const useOrder = () => {
     },
   });
 
-  // Update Order Mutation
+  // Update Order Mutation (e.g. PATCH /inventory/order/:id?storeId=… body: { status })
   const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, payload }: { id: number; payload: UpdateOrderPayload }): Promise<ApiOrder> => {
-      const { data } = await api.put<ApiResponse<ApiOrder>>(
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: UpdateOrderPayload;
+    }): Promise<UpdateOrderResponseBody["order"]> => {
+      const { data } = await api.patch<ApiResponse<UpdateOrderResponseBody>>(
         `/inventory/order/${id}`,
-        payload
+        payload,
+        { params: { storeId } }
       );
       if (data?.responseSuccessful) {
-        return data.responseBody;
+        return data.responseBody.order;
       }
       throw new Error(data?.responseMessage || "Failed to update order");
     },
     onSuccess: (updatedOrder) => {
-      // ✅ Invalidate all queries for this store
-      if (storeId) {
-        queryClient.invalidateQueries({
-          predicate: (query) =>
-            Array.isArray(query.queryKey) && query.queryKey.includes(storeId),
-        });
+      const targetStoreId = updatedOrder.storeId ?? storeId;
+      if (targetStoreId !== undefined) {
+        invalidateStoreQueries(targetStoreId);
       }
 
-      // ✅ Optimistically update the orders list cache
       queryClient.setQueryData<Order[]>(orderKeys.orders(storeId), (old) => {
         if (!old) return old;
-        return old.map(order => 
-          order.id === updatedOrder.id ? updatedOrder as unknown as Order : order
+        return old.map((order) =>
+          order.id === updatedOrder.id
+            ? {
+                ...order,
+                status: updatedOrder.status,
+                updatedAt: updatedOrder.updatedAt,
+              }
+            : order
         );
       });
 
-      // ✅ Optimistically update single order cache
-      queryClient.setQueryData<Order>(
-        orderKeys.order(updatedOrder.id, storeId), 
-        updatedOrder as unknown as Order
+      queryClient.setQueryData<OrderDetail>(
+        orderKeys.order(updatedOrder.id, storeId),
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            order: {
+              ...old.order,
+              status: updatedOrder.status,
+              updatedAt: updatedOrder.updatedAt,
+            },
+            customer: updatedOrder.customer
+              ? { ...old.customer, ...updatedOrder.customer }
+              : old.customer,
+            orderItems: updatedOrder.orderItems ?? old.orderItems,
+          };
+        }
       );
 
       toast.success("Order updated successfully");
@@ -273,6 +308,10 @@ export const useOrder = () => {
     return updateOrderMutation.mutateAsync({ id, payload });
   };
 
+  const updateOrderStatus = async (id: number, status: string) => {
+    return updateOrderMutation.mutateAsync({ id, payload: { status } });
+  };
+
   const deleteOrder = async (id: number) => {
     return deleteOrderMutation.mutateAsync(id);
   };
@@ -308,11 +347,12 @@ export const useOrder = () => {
     useOrderQuery,
     addOrder,
     updateOrder,
+    updateOrderStatus,
     deleteOrder,
 
     // Reset functions
     resetAddOrder: addOrderMutation.reset,
-    resetUpdateOrder: addOrderMutation.reset,
+    resetUpdateOrder: updateOrderMutation.reset,
     resetDeleteOrder: deleteOrderMutation.reset,
   };
 };

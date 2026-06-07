@@ -4,14 +4,14 @@ import { PageHeader } from "./page-header";
 import { StatCard } from "./stat-card";
 import Image from "next/image";
 import { useCustomer } from "@/hooks/use-customer";
-import { HasBusinessAlert } from "./hasBusinessAlert";
 import { useAuthStore } from "@/store/useAuthStore";
 export function SectionCards() {
   const { customerSummary, summaryError, isSummaryLoading } =
     useCustomer();
-    const { user } = useAuthStore()
+  const { user } = useAuthStore()
 
-    const isLoading = isSummaryLoading;
+  const hasBusiness = user?.business != null;
+  const isLoading = isSummaryLoading && hasBusiness;
 
   if (isLoading) {
     return (
@@ -92,15 +92,14 @@ export function SectionCards() {
     },
   ];
 
-  const hasBusiness = user?.business != null;
+  // const hasBusiness = user?.business != null;
 
   return (
     <div className="">
       <PageHeader
-        title="Customer Management"
-        subtitle="Track customer activity and manage relationships with ease."
+        title="Customer"
+        subtitle="Manage your products and track stock levels"
       />
-        {!hasBusiness && <HasBusinessAlert />}
       <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <StatCard key={i} {...stat} />

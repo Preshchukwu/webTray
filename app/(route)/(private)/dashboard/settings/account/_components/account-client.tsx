@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { Upload, Trash2, Eye, EyeOff } from "lucide-react"
+import { SettingsPageHeader } from "../../_components/settings-page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,18 +31,11 @@ export function AccountClient() {
 
   return (
     <div className="flex flex-col gap-8 max-w-[1000px]">
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-1 text-[12px] font-regular text-[#676767]">
-          <Link href="/dashboard/settings" className="hover:text-[#365BEB] transition-colors">
-            Settings
-          </Link>
-          <span className="mx-1">/</span>
-          <span>Account Setting</span>
-        </div>
-        <h1 className="text-[16px] leading-[24px] md:text-[20px] font-bold text-[#4D4D4D]">Account Settings</h1>
-        <p className="text-[#4D4D4D] text-[14px] leading-[24px] font-regular md:text-[16px]">Manage your personal account information and preferences</p>
-      </div>
+      <SettingsPageHeader
+        segment="Account Setting"
+        title="Account Settings"
+        description="Manage your personal account information and preferences"
+      />
 
       <div className="flex flex-col gap-10 bg-white p-8 rounded-[20px] shadow-sm">
         {/* Profile Information Section */}

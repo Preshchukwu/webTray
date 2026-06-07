@@ -6,7 +6,6 @@ import { TrendingDown, TrendingUp, Package } from "lucide-react";
 import { formatNumber } from "@/lib/format-number";
 import InventoryPageSkeleton from "../inventory-page-skeleton";
 import { PageHeader } from "../page-header";
-import { HasBusinessAlert } from "../hasBusinessAlert";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatCurrency } from "@/lib/format-currency";
 
@@ -19,17 +18,19 @@ export default function InventoryStatCard() {
   const { isFetchingProducts } = useProduct();
   const { user } = useAuthStore(); // Add fetchingProfile
 
-  const isLoading = isFetchingInventorySummary || isFetchingProducts; // Include fetchingProfile
+  const hasBusiness = user?.business != null;
+  const isLoading = (isFetchingInventorySummary || isFetchingProducts) && hasBusiness;
 
   if (isLoading) {
     return <InventoryPageSkeleton />;
   }
-   
+  console.log("Inventory Summary", inventorySummary);
+
   if (inventorySummaryError) {
     return (
       <div className="">
         <PageHeader
-          title="Overview"
+          title="Inventory"
           subtitle="Manage your products and track stock levels"
         />
         <div className="mt-6 p-4 border border-red-200 rounded-lg bg-red-50">
@@ -70,19 +71,18 @@ export default function InventoryStatCard() {
     },
   ];
 
-  // Only check for business after profile has been fetched
-  const hasBusiness = user?.business != null;
- 
-  return (
-    <div>
-      {/* Now this banner only shows when we've confirmed user has no business */}
-      {!hasBusiness && <HasBusinessAlert />}
-      
-      <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, i) => (
-          <StatCard key={i} {...stat} />
-        ))}
-      </div>
+
+
+  <div>
+    <PageHeader
+      title="Inventory"
+      subtitle="Manage your products and track stock levels"
+    />
+
+    <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat, i) => (
+        <StatCard key={i} {...stat} />
+      ))}
     </div>
-  );
+  </div>
 }

@@ -638,7 +638,7 @@ export default function WebTrayOnboarding() {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="mx-auto w-full max-w-7xl">
         {/* Header */}
-        <div className="flex w-[80%] mt-5 mx-auto items-center justify-between">
+        <div className="flex w-full px-2 md:w-[80%] mt-5 mx-auto items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src="/webtraylogo.png" width={100} height={100} alt="logo" />
           </div>
@@ -646,7 +646,7 @@ export default function WebTrayOnboarding() {
         </div>
 
         {/* Progress Section */}
-        <div className="mt-8 w-[70%] mx-auto">
+        <div className="mt-8 px-2 w-full md:w-[70%] mx-auto">
           <div className="w-full mb-8">
             <Button
               onClick={() => router.push("/dashboard")}
@@ -732,12 +732,12 @@ export default function WebTrayOnboarding() {
 
           {/* Step 1: Business Information */}
           {currentStep === 1 && (
-            <Card className="bg-gray-50 border-[0.08rem] shadow-none border-[#EBEBEB] rounded-md">
+            <Card className="bg-gray-50 px-0 border-[0.08rem] shadow-none border-[#EBEBEB] rounded-md">
               <CardHeader className="text-center">
                 <CardTitle className="text-xl">Business Information</CardTitle>
                 <CardDescription>Tell us about your business</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 px-2 md:px-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="business-name">Business Name*</Label>
@@ -751,7 +751,7 @@ export default function WebTrayOnboarding() {
                       onBlur={(e) =>
                         handleInputBlur("businessName", e.target.value)
                       }
-                      className={getFieldClassName("businessName")}
+                      className={`w-full ${getFieldClassName("businessName")}`}
                       required
                     />
                     {renderFieldError("businessName")}
@@ -804,7 +804,7 @@ export default function WebTrayOnboarding() {
                         value={formData.businessType === "others" ? "" : formData.businessType}
                         onChange={(e) => handleInputChange("businessType", e.target.value)}
                         onBlur={(e) => handleInputBlur("businessType", e.target.value)}
-                        className={getFieldClassName("businessType")}
+                        className={`w-full ${getFieldClassName("businessType")}`}
                         autoFocus
                       />
                     )}
@@ -824,7 +824,7 @@ export default function WebTrayOnboarding() {
                     onBlur={(e) =>
                       handleInputBlur("description", e.target.value)
                     }
-                    className={getFieldClassName("description")}
+                    className={`w-full ${getFieldClassName("description")}`}
                     required
                   />
                   {renderFieldError("description")}
@@ -840,7 +840,7 @@ export default function WebTrayOnboarding() {
                       handleInputChange("address", e.target.value)
                     }
                     onBlur={(e) => handleInputBlur("address", e.target.value)}
-                    className={getFieldClassName("address")}
+                    className={`w-full ${getFieldClassName("address")}`}
                     required
                   />
                   {renderFieldError("address")}
@@ -859,7 +859,7 @@ export default function WebTrayOnboarding() {
                       onBlur={(e) =>
                         handleInputBlur("contactInfo.phone", e.target.value)
                       }
-                      className={getFieldClassName("contactInfo.phone")}
+                      className={`w-full ${getFieldClassName("contactInfo.phone")}`}
                       required
                     />
                     {renderFieldError("contactInfo.phone")}
@@ -877,7 +877,7 @@ export default function WebTrayOnboarding() {
                       onBlur={(e) =>
                         handleInputBlur("contactInfo.email", e.target.value)
                       }
-                      className={getFieldClassName("contactInfo.email")}
+                      className={`w-full ${getFieldClassName("contactInfo.email")}`}
                       required
                     />
                     {renderFieldError("contactInfo.email")}
@@ -970,7 +970,7 @@ export default function WebTrayOnboarding() {
                               placeholder="Type your category..."
                               value={customBusinessCategory.trim()}
                               onChange={(e) => setCustomBusinessCategory(e.target.value)}
-                              className="h-8 text-sm"
+                              className="w-full h-8 text-sm"
                               autoFocus
                             />
                           </div>
@@ -991,7 +991,7 @@ export default function WebTrayOnboarding() {
                 <CardTitle className="text-xl">Store Setup</CardTitle>
                 <CardDescription>Configure your online store</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 px-2 md:px-6">
                 {/* Store Logo Upload Area */}
                 <div className="flex flex-col items-center justify-center py-4 border-b border-dashed mb-6">
                   <div 
@@ -1062,7 +1062,7 @@ export default function WebTrayOnboarding() {
                       onBlur={(e) =>
                         handleInputBlur("storeName", e.target.value)
                       }
-                      className={getFieldClassName("storeName")}
+                      className={`w-full ${getFieldClassName("storeName")}`}
                       required
                     />
                     {renderFieldError("storeName")}
@@ -1142,7 +1142,7 @@ export default function WebTrayOnboarding() {
                         onBlur={(e) => {
                           handleInputBlur("storeCategory", e.target.value);
                         }}
-                        className={getFieldClassName("storeCategory")}
+                        className={`w-full ${getFieldClassName("storeCategory")}`}
                         autoFocus
                       />
                     )}
@@ -1187,7 +1187,7 @@ export default function WebTrayOnboarding() {
                       onBlur={(e) =>
                         handleInputBlur("whatsappNumber", e.target.value)
                       }
-                      className={getFieldClassName("whatsappNumber")}
+                      className={`w-full ${getFieldClassName("whatsappNumber")}`}
                       required
                     />
                     {renderFieldError("whatsappNumber")}
@@ -1222,7 +1222,7 @@ export default function WebTrayOnboarding() {
                   {"Set up how you'll accept payments and deliver orders"}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 px-2 md:px-6">
                 <div className="space-y-4">
                   <Label className="text-base font-medium">
                     Payment Methods*

@@ -294,6 +294,7 @@ export default function CategoriesPage() {
             ? "Update Category"
             : "Create Category"
         }
+        showImageUpload={false}
         onSubmit={handleSubmit}
         validationErrors={validationErrors}
         shouldClearForm={shouldClearForm}
