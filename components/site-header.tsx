@@ -72,9 +72,9 @@ export function SiteHeader() {
           {/* Right section */}
           <div className="ml-auto flex items-center gap-2 sm:gap-8">
             <div className="flex items-center gap-3 sm:gap-4 md:gap-8">
-              <Link href="/dashboard/settings" aria-label="Settings" className="hidden sm:block">
+              {/* <Link href="/dashboard/settings" aria-label="Settings" className="hidden sm:block">
                 <Settings className={cn("w-5 h-5 md:w-6 md:h-6", pathname.startsWith("/dashboard/settings") ? "text-[#365BEB]" : "text-[#808080]")} />
-              </Link>
+              </Link> */}
               {/* <Link href="/profile" aria-label="Profile" className="hidden sm:block">
                 <User className={pathname.startsWith("/profile") ? "text-[#365BEB]" : "text-[#808080]"} />
               </Link> */}
