@@ -62,11 +62,11 @@ const data = {
       url: "/dashboard/wallet",
       icon: IconWallet,
     },
-    {
-      title: "Ads",
-      url: "/dashboard/ads",
-      icon: IconSpeakerphone,
-    },
+    // {
+    //   title: "Ads",
+    //   url: "/dashboard/ads",
+    //   icon: IconSpeakerphone,
+    // },
     // {
     //   title: "Settings",
     //   url: "/dashboard/settings",

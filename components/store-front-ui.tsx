@@ -11,6 +11,7 @@ import CategoryFilter from "@/components/store-front/store-front-cate-filter";
 import ProductsGrid from "@/components/store-front/store-front-product-grid";
 import StoreFrontSkeleton from "./store-front/store-front-skeleton";
 import { Search, ShoppingCart } from "lucide-react";
+import { motion } from "motion/react";
 
 interface StorefrontUIProps {
   slug: string;
@@ -203,12 +204,34 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
-        <div className="space-y-6 p-4 max-w-7xl mx-auto">
-          <StoreFrontSlide />
-          <h1 className="font-bold text-[#4D4D4D] text-2xl">Products</h1>
+      <div className="min-h-screen bg-gray-50 overflow-hidden">
+        <motion.div 
+          className="space-y-6 p-4 max-w-7xl mx-auto"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+            }
+          }}
+        >
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}>
+            <StoreFrontSlide />
+          </motion.div>
+          
+          <motion.h1 
+            className="font-bold text-[#4D4D4D] text-2xl"
+            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.5 } } }}
+          >
+            Products
+          </motion.h1>
 
-          <div className="flex flex-col gap-6 w-full">
+          <motion.div 
+            className="flex flex-col gap-6 w-full"
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
+          >
             <div className="flex flex-col gap-4 w-full">
               {/* 1. Search - Highest Priority (Intent-driven) */}
               <div className="relative w-full shadow-sm rounded-xl">
@@ -251,7 +274,6 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
                   <option value="price-desc">Price: High to Low</option>
                 </select>
               </div>
-            </div>
 
               {isFetchingProducts && (
                 <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -343,8 +365,9 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
                   </button>
                 </div>
               )}
-          </div>
-        </div>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </>
   );
