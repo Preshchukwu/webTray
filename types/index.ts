@@ -600,3 +600,94 @@ export interface NotificationsResponse {
   notifications: Notification[];
   meta: NotificationMeta;
 }
+
+// Ad Types
+export interface AdProduct {
+  id: number;
+  storeId: number;
+  name: string;
+  description: string;
+  price: string;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
+  categoryId: number;
+  feature: boolean;
+  visible: boolean;
+  images: string[];
+  isDeleted: boolean;
+}
+
+export interface AdHistoryProduct {
+  name: string;
+  price: string;
+  images: string[];
+}
+
+export interface AdTransaction {
+  reference: string;
+  status: string;
+  amount: string;
+}
+
+export interface AdHistoryItem {
+  id: number;
+  adTransactionId: number;
+  productId: number;
+  days: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  product: AdHistoryProduct;
+  adTransaction: AdTransaction;
+}
+
+export interface AdOverview {
+  liveAds: number;
+  totalSpent: number;
+  totalReach: number;
+}
+
+export interface InitiateAdPayload {
+  storeId: number;
+  productIds: number[];
+  days: number;
+  callbackUrl: string;
+}
+
+export interface InitiateAdResponse {
+  authorization_url: string;
+  reference: string;
+}
+
+export interface VerifiedAdProductAd {
+  id: number;
+  adTransactionId: number;
+  productId: number;
+  days: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  product: AdProduct;
+}
+
+export interface VerifyAdResponse {
+  id: number;
+  storeId: number;
+  amount: string;
+  reference: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  paymentDetails: any;
+  productAds: VerifiedAdProductAd[];
+}
+

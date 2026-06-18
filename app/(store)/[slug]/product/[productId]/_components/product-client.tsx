@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, use } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Minus,
@@ -9,12 +9,13 @@ import {
   Heart,
   ChevronLeft,
   ChevronRight,
-  Package
+  Package,
 } from "lucide-react";
 import Image from "next/image";
 import { useStorefront } from "@/hooks/use-customer-store";
 import { useCartStore } from "@/store/use-cart-store";
 import { toast } from "sonner";
+import { StoreRatingModal } from "@/components/store-rating-modal";
 
 interface ProductClientProps {
   slug: string;
@@ -129,14 +130,46 @@ const ProductDetailSkeleton = () => {
 
 export const ProductClient = ({ slug, productId }: ProductClientProps) => {
   const router = useRouter();
-  const { allProducts, isFetchingAllProducts, categories } = useStorefront(slug);
+  const { allProducts, isFetchingAllProducts, categories, store } = useStorefront(slug);
   const addToCart = useCartStore((state) => state.addToCart);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [hasRatedStore, setHasRatedStore] = useState(false);
+
+  const ratingStorageKey = `store-rating-completed:${slug}`;
 
   const product = useMemo(() => {
     return allProducts.find((p) => p.id === parseInt(productId));
   }, [allProducts, productId]);
+
+  useEffect(() => {
+    if (!product) return;
+
+    const stored = localStorage.getItem(ratingStorageKey);
+
+    if (stored === "true") {
+      setHasRatedStore(true);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowRatingModal(true);
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
+  }, [product, ratingStorageKey]);
+
+  const handleSubmitStoreRating = (rating: number, note: string) => {
+    localStorage.setItem(ratingStorageKey, "true");
+    setHasRatedStore(true);
+    setShowRatingModal(false);
+    toast.success("Thanks for rating this store!");
+  };
+
+  const handleSkipStoreRating = () => {
+    setShowRatingModal(false);
+  };
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
@@ -495,6 +528,19 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
           </div>
         )}
       </div>
+
+      <StoreRatingModal
+        open={showRatingModal && !hasRatedStore}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowRatingModal(false);
+          }
+        }}
+        onSubmit={handleSubmitStoreRating}
+        onSkip={handleSkipStoreRating}
+        storeName={store?.storeName || slug}
+        logoUrl={store?.logoUrl}
+      />
     </div>
   );
 };
