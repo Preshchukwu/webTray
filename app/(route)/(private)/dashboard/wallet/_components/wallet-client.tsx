@@ -38,7 +38,8 @@ import {
   useWallet,
   type WalletTransactionStatus,
 } from "@/hooks/use-wallet";
-import type { Invoice, InvoiceItem } from "@/types";
+import { useProduct } from "@/hooks/use-product";
+import type { Invoice, InvoiceItem, Product } from "@/types";
 import { formatCurrency } from "@/lib/format-currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WithdrawalBankAccounts } from "./withdrawal-bank-accounts";
@@ -175,6 +176,15 @@ function InvoiceSection() {
   const [formCustomerName, setFormCustomerName] = useState("");
   const [formDueDate, setFormDueDate] = useState("");
   const [formItems, setFormItems] = useState<InvoiceItem[]>([{ ...EMPTY_ITEM }]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState<number | null>(null);
+  const { products } = useProduct();
+
+  const availableProducts = products ?? [];
+  const getFilteredProducts = (query: string) =>
+    availableProducts.filter((product) =>
+      product.name.toLowerCase().includes(query.toLowerCase()) ||
+      product.description.toLowerCase().includes(query.toLowerCase())
+    );
 
   const formTotal = formItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
@@ -360,46 +370,95 @@ function InvoiceSection() {
                 <span className="text-xs text-gray-400 w-14 text-center">Qty</span>
                 <span className="text-xs text-gray-400 flex-1 text-right pr-2">Price (₦)</span>
               </div>
-              {formItems.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-center">
-                  <Input
-                    placeholder="Item name"
-                    value={item.name}
-                    onChange={(e) => updateItem(idx, "name", e.target.value)}
-                    className="rounded-xl border-gray-200 flex-[2]"
-                  />
-                  <Input
-                    type="number"
-                    min={1}
-                    placeholder="1"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      updateItem(idx, "quantity", Math.max(1, parseInt(e.target.value) || 1))
-                    }
-                    className="rounded-xl border-gray-200 w-14 text-center"
-                  />
-                  <Input
-                    type="number"
-                    min={0}
-                    placeholder="0"
-                    value={item.price || ""}
-                    onChange={(e) => updateItem(idx, "price", parseFloat(e.target.value) || 0)}
-                    className="rounded-xl border-gray-200 flex-1"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    className={cn(
-                      "h-9 w-9 p-0 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 shrink-0",
-                      formItems.length === 1 && "invisible"
-                    )}
-                    onClick={() => removeItem(idx)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
+              {formItems.map((item, idx) => {
+                const filteredProducts = getFilteredProducts(item.name || "");
+                const showSuggestions = activeSuggestionIndex === idx && item.name.trim().length > 0;
+
+                return (
+                  <div key={idx} className="flex gap-2 items-center relative">
+                    <div className="relative flex-[2]">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        placeholder="Item name"
+                        value={item.name}
+                        onChange={(e) => {
+                          updateItem(idx, "name", e.target.value);
+                          setActiveSuggestionIndex(idx);
+                        }}
+                        onFocus={() => setActiveSuggestionIndex(idx)}
+                        className="rounded-xl border-gray-200 pl-10 w-full"
+                      />
+
+                      {showSuggestions && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {filteredProducts.length > 0 ? (
+                            filteredProducts.map((product: Product) => (
+                              <button
+                                key={product.id}
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => {
+                                  updateItem(idx, "name", product.name);
+                                  updateItem(idx, "price", parseFloat(product.price) || 0);
+                                  setActiveSuggestionIndex(null);
+                                }}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-gray-900">{product.name}</div>
+                                    <div className="text-sm text-gray-600">{product.description}</div>
+                                    <div className="text-sm text-gray-800 font-medium mt-1">₦{parseFloat(product.price).toFixed(2)}</div>
+                                  </div>
+                                  <div className="text-right ml-4">
+                                    {product.quantity > 0 ? (
+                                      <span className="text-xs text-green-600 font-medium">{product.quantity} in stock</span>
+                                    ) : (
+                                      <span className="text-xs text-red-600 font-medium">Out of stock</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-sm text-gray-500">No products found</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateItem(idx, "quantity", Math.max(1, parseInt(e.target.value) || 1))
+                      }
+                      className="rounded-xl border-gray-200 w-14 text-center"
+                    />
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      value={item.price || ""}
+                      onChange={(e) => updateItem(idx, "price", parseFloat(e.target.value) || 0)}
+                      className="rounded-xl border-gray-200 flex-1"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className={cn(
+                        "h-9 w-9 p-0 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 shrink-0",
+                        formItems.length === 1 && "invisible"
+                      )}
+                      onClick={() => removeItem(idx)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                );
+              })}
               <Button
                 type="button"
                 variant="outline"
