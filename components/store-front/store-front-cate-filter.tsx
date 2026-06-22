@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Category {
@@ -22,16 +22,38 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   isLoading = false
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  const checkScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      // Use a small tolerance of 2px for minor zoom/subpixel differences
+      setShowLeftArrow(scrollLeft > 2);
+      setShowRightArrow(scrollWidth - scrollLeft - clientWidth > 2);
+    }
+  };
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 200;
+      const scrollAmount = 240;
       scrollContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
     }
   };
+
+  // Check scroll capability on mount, categories change, and resize
+  useEffect(() => {
+    checkScroll();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [categories]);
 
   // Optional: Hide scrollbars with a style tag for better cross-browser support without modifying global css
   useEffect(() => {
@@ -66,18 +88,25 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   }
 
   return (
-    <div className="relative group flex items-center w-full">
-      {/* Left Scroll Button */}
-      <button 
-        onClick={() => scroll('left')}
-        className="absolute left-0 z-10 hidden md:flex items-center justify-center w-8 h-8 bg-white border border-gray-200 shadow-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity -ml-4 hover:bg-gray-50"
-      >
-        <ChevronLeft className="w-4 h-4 text-gray-600" />
-      </button>
+    <div className="relative flex items-center w-full">
+      {/* Left Gradient & Scroll Button */}
+      {showLeftArrow && (
+        <>
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10" />
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-1 z-20 flex items-center justify-center w-9 h-9 bg-white border border-gray-200 shadow-md rounded-full hover:bg-gray-50 active:scale-95 transition-all text-gray-700 hover:text-gray-900"
+            aria-label="Scroll Left"
+          >
+            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        </>
+      )}
 
       {/* Categories Scroll Container */}
       <div 
         ref={scrollContainerRef}
+        onScroll={checkScroll}
         className="flex space-x-2 overflow-x-auto py-2 w-full hide-scrollbar px-1"
       >
         <button
@@ -109,13 +138,19 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
         })}
       </div>
 
-      {/* Right Scroll Button */}
-      <button 
-        onClick={() => scroll('right')}
-        className="absolute right-0 z-10 hidden md:flex items-center justify-center w-8 h-8 bg-white border border-gray-200 shadow-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity -mr-4 hover:bg-gray-50"
-      >
-        <ChevronRight className="w-4 h-4 text-gray-600" />
-      </button>
+      {/* Right Gradient & Scroll Button */}
+      {showRightArrow && (
+        <>
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10" />
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-1 z-20 flex items-center justify-center w-9 h-9 bg-white border border-gray-200 shadow-md rounded-full hover:bg-gray-50 active:scale-95 transition-all text-gray-700 hover:text-gray-900"
+            aria-label="Scroll Right"
+          >
+            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        </>
+      )}
     </div>
   )
 }

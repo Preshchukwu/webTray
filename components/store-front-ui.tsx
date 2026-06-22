@@ -143,14 +143,9 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
 
   // Handle clearing filters is already defined below
 
-  // Reset to default (first category)
+  // Reset to default (all categories)
   const handleClearFilters = () => {
-    if (categories.length > 0) {
-      const firstCategoryId = categories[0].id;
-      setSelectedCategoryIds([firstCategoryId]);
-    } else {
-      setSelectedCategoryIds([]);
-    }
+    setSelectedCategoryIds([]);
   };
 
   const getCategoryName = (categoryId: number) => {

@@ -691,3 +691,41 @@ export interface VerifyAdResponse {
   productAds: VerifiedAdProductAd[];
 }
 
+export interface Review {
+  id: number;
+  productId: number;
+  customerId: number | null;
+  fullname: string;
+  email: string | null;
+  rating: number;
+  review: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export interface ReviewPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ReviewsResponse {
+  reviews: Review[];
+  pagination: ReviewPagination;
+}
+
+export interface ReviewsAggregateResponse {
+  productId: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
+export interface SubmitReviewPayload {
+  rating: number;
+  review: string;
+  fullname: string;
+}
+
+

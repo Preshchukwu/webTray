@@ -35,6 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { store } = useStorefront(slug);
   const [isWhatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
   const [isMobileTooltipMode, setIsMobileTooltipMode] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const isOutOfStock = product.quantity === 0;
 
   useEffect(() => {
@@ -71,8 +72,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className="group bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+        className="group bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#25D366]"
         onClick={handleViewDetails}
+        tabIndex={0}
+        onFocus={() => {
+          if (isMobileTooltipMode) setIsFocused(true);
+        }}
+        onBlur={() => {
+          if (isMobileTooltipMode) setIsFocused(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleViewDetails();
+          }
+        }}
       >
         <div className="relative h-48 bg-gray-100 flex items-center justify-center">
           {product.images?.[0] ? (
@@ -117,7 +131,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {product.quantity} in stock
               </p>
             </div>
-            <Tooltip open={isMobileTooltipMode ? true : undefined}>
+            <Tooltip open={isMobileTooltipMode ? isFocused : undefined}>
               <TooltipTrigger asChild>
                 <button
                   onClick={handleWhatsAppShare}
@@ -188,11 +202,50 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4 rounded-[20px] border border-gray-200 bg-slate-50 p-4">
-            <p className="text-sm font-semibold text-gray-900">Product</p>
-            <p className="text-sm text-gray-600">{product.name}</p>
-            <p className="mt-3 text-sm font-semibold text-gray-900">Price</p>
-            <p className="text-sm text-gray-600">₦{parseFloat(product.price).toLocaleString()}</p>
+          <div className="mt-4 rounded-[20px] border border-gray-200 bg-slate-50 p-4 space-y-4">
+            <div className="flex gap-4 items-start">
+              {product.images?.[0] ? (
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-white shadow-sm">
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-xl border border-gray-200 flex-shrink-0 flex items-center justify-center bg-white text-gray-400 shadow-sm">
+                  <Package className="w-8 h-8" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-gray-900 text-[16px] leading-tight truncate mb-1">
+                  {product.name}
+                </h4>
+                <p className="text-lg font-extrabold text-emerald-600 mb-2">
+                  ₦{parseFloat(product.price).toLocaleString()}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-200/80 text-gray-700">
+                    {product.quantity} in stock
+                  </span>
+                  {product.feature && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                      Featured
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {product.description && (
+              <div className="pt-3 border-t border-gray-200/60">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Description</p>
+                <p className="text-xs text-gray-600 line-clamp-3 leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="mt-6 gap-3">

@@ -16,6 +16,8 @@ import { useStorefront } from "@/hooks/use-customer-store";
 import { useCartStore } from "@/store/use-cart-store";
 import { toast } from "sonner";
 import { StoreRatingModal } from "@/components/store-rating-modal";
+import { useProductReviews } from "@/hooks/use-product-reviews";
+import { ProductReviewsModal } from "@/components/product-reviews-modal";
 
 interface ProductClientProps {
   slug: string;
@@ -142,6 +144,10 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
   const product = useMemo(() => {
     return allProducts.find((p) => p.id === parseInt(productId));
   }, [allProducts, productId]);
+
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const parsedProductId = product?.id || 0;
+  const { aggregate } = useProductReviews(parsedProductId);
 
   useEffect(() => {
     if (!product) return;
@@ -386,16 +392,29 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
 
             {/* Rating */}
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
-                {[1, 2, 3, 4].map((star) => (
-                  <span key={star} className="text-yellow-400 text-sm">
-                    ★
-                  </span>
-                ))}
-                <span className="text-gray-300 text-sm">★</span>
+              <div 
+                className="flex cursor-pointer"
+                onClick={() => setShowReviewsModal(true)}
+              >
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const filled = star <= Math.round(aggregate?.averageRating || 0);
+                  return (
+                    <span 
+                      key={star} 
+                      className={`text-sm ${filled ? "text-yellow-400" : "text-gray-300"}`}
+                    >
+                      ★
+                    </span>
+                  );
+                })}
               </div>
-              <span className="text-xs text-blue-600 hover:underline cursor-pointer">
-                (See ratings)
+              <span 
+                onClick={() => setShowReviewsModal(true)}
+                className="text-xs text-blue-600 hover:underline cursor-pointer font-medium"
+              >
+                {aggregate?.totalReviews && aggregate.totalReviews > 0
+                  ? `(${aggregate.averageRating.toFixed(1)} / 5 from ${aggregate.totalReviews} ${aggregate.totalReviews === 1 ? "review" : "reviews"})`
+                  : "(No reviews yet - Rate)"}
               </span>
             </div>
 
@@ -541,6 +560,15 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
         storeName={store?.storeName || slug}
         logoUrl={store?.logoUrl}
       />
+
+      {product && (
+        <ProductReviewsModal
+          open={showReviewsModal}
+          onOpenChange={setShowReviewsModal}
+          productId={product.id}
+          productName={product.name}
+        />
+      )}
     </div>
   );
 };
