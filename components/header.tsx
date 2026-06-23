@@ -29,6 +29,7 @@ export default function Header() {
   const navItems = [
     { name: "Features", path: "/feature-page" },
     { name: "Pricing", path: "/pricing-page" },
+    { name: "Vendors", path: "/vendors" },
     { name: "Contact Us", path: "/contact-us-page" },
   ]
   

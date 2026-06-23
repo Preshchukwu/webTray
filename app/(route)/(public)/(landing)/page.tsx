@@ -4,6 +4,8 @@ import { AllInOne } from "@/components/all-in-one";
 import { HowItWorksSection } from "@/components/how-it-works";
 import { WhyChoose } from "@/components/why-choose";
 import { WhoIsItFor } from "@/components/who-is-it-for";
+import { VendorSection } from "@/components/vendor-section";
+import { CreativeSection } from "@/components/creative-section";
 import { Testimonials } from "@/components/testimonials";
 import { CTASection } from "@/components/cta-section";
 import Header from "@/components/header";
@@ -25,6 +27,8 @@ export default function HomePage() {
       <HowItWorksSection />
       <WhyChoose />
       <WhoIsItFor />
+      <VendorSection />
+      <CreativeSection />
       <Testimonials />
       <CTASection />
       <Footer />
