@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { StoreRatingModal } from "@/components/store-rating-modal";
 import { useProductReviews } from "@/hooks/use-product-reviews";
 import { ProductReviewsModal } from "@/components/product-reviews-modal";
+import { useStoreReviews } from "@/hooks/use-store-reviews";
 
 interface ProductClientProps {
   slug: string;
@@ -140,6 +141,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
   const [hasRatedStore, setHasRatedStore] = useState(false);
 
   const ratingStorageKey = `store-rating-completed:${slug}`;
+  const ratingSnoozeKey = `store-rating-snoozed:${slug}`;
 
   const product = useMemo(() => {
     return allProducts.find((p) => p.id === parseInt(productId));
@@ -148,14 +150,19 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const parsedProductId = product?.id || 0;
   const { aggregate } = useProductReviews(parsedProductId);
+  const { submitReview: submitStoreReview } = useStoreReviews(store?.id || 0);
 
   useEffect(() => {
     if (!product) return;
 
     const stored = localStorage.getItem(ratingStorageKey);
-
     if (stored === "true") {
       setHasRatedStore(true);
+      return;
+    }
+
+    const isSnoozed = sessionStorage.getItem(ratingSnoozeKey) === "true";
+    if (isSnoozed) {
       return;
     }
 
@@ -164,16 +171,29 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
     }, 5000);
 
     return () => window.clearTimeout(timer);
-  }, [product, ratingStorageKey]);
+  }, [product, ratingStorageKey, ratingSnoozeKey]);
 
-  const handleSubmitStoreRating = (rating: number, note: string) => {
-    localStorage.setItem(ratingStorageKey, "true");
-    setHasRatedStore(true);
-    setShowRatingModal(false);
-    toast.success("Thanks for rating this store!");
+  const handleSubmitStoreRating = async (rating: number, note: string) => {
+    if (!store?.id) {
+      toast.error("Store information is not loaded yet");
+      return;
+    }
+    try {
+      await submitStoreReview({
+        rating,
+        fullname: note.trim() || undefined,
+        review: "Nice store",
+      });
+      localStorage.setItem(ratingStorageKey, "true");
+      setHasRatedStore(true);
+      setShowRatingModal(false);
+    } catch (err) {
+      // Error handling is managed by the mutation hook/toast
+    }
   };
 
   const handleSkipStoreRating = () => {
+    sessionStorage.setItem(ratingSnoozeKey, "true");
     setShowRatingModal(false);
   };
 
@@ -552,7 +572,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
         open={showRatingModal && !hasRatedStore}
         onOpenChange={(open) => {
           if (!open) {
-            setShowRatingModal(false);
+            handleSkipStoreRating();
           }
         }}
         onSubmit={handleSubmitStoreRating}

@@ -57,7 +57,7 @@ export function StoreRatingModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[340px] rounded-[24px] bg-white p-6 gap-0">
+      <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-[340px] rounded-[24px] bg-white p-6 gap-0">
         {/* Circular Logo */}
         <div className="flex justify-center mb-3">
           {logoUrl ? (

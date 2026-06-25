@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Star, MessageSquare, Plus, Check } from "lucide-react";
+import { Star, MessageSquare, PenLine, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -80,8 +80,8 @@ export function ProductReviewsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md rounded-[24px] bg-white p-6 gap-0">
-        <DialogHeader className="mb-4">
+      <DialogContent className="w-full max-w-[calc(100%-2rem)] sm:max-w-md rounded-[24px] bg-white p-4 sm:p-6 gap-0">
+        <DialogHeader className="mb-4 min-w-0 w-full">
           <DialogTitle className="text-xl font-bold text-gray-900 truncate pr-6">
             Reviews for {productName}
           </DialogTitle>
@@ -91,7 +91,7 @@ export function ProductReviewsModal({
         </DialogHeader>
 
         {/* Aggregate Banner */}
-        <div className="flex items-center justify-between p-4 bg-slate-50 border border-gray-100 rounded-2xl mb-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-50 border border-gray-100 rounded-2xl mb-4 shadow-sm w-full min-w-0">
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-3xl font-extrabold text-gray-950">
@@ -104,7 +104,7 @@ export function ProductReviewsModal({
             </p>
           </div>
 
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-start sm:items-end gap-1">
             <div className="flex">
               {stars.map((star) => {
                 const filled = star <= Math.round(averageRating);
@@ -121,9 +121,9 @@ export function ProductReviewsModal({
             {!showAddForm && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 mt-1 hover:underline cursor-pointer"
+                className="text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-200/50 shadow-2xs mt-1.5 active:scale-95 duration-150"
               >
-                <Plus className="w-3 h-3" /> Write a review
+                <PenLine className="w-3.5 h-3.5" /> Write a review
               </button>
             )}
           </div>
@@ -133,7 +133,7 @@ export function ProductReviewsModal({
         {showAddForm && (
           <form
             onSubmit={handleSubmit}
-            className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 mb-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200"
+            className="border border-gray-100 rounded-2xl p-4 bg-slate-50/50 mb-4 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200 w-full min-w-0"
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-700">Your Rating</span>
@@ -213,7 +213,7 @@ export function ProductReviewsModal({
         )}
 
         {/* Reviews List */}
-        <div className="max-h-[260px] overflow-y-auto pr-1 space-y-3 scrollbar-thin">
+        <div className="max-h-[260px] overflow-y-auto pr-1 space-y-3 scrollbar-thin w-full min-w-0">
           {isLoadingReviews ? (
             <div className="text-center py-8 text-sm text-gray-400">Loading reviews...</div>
           ) : !reviewsData?.reviews || reviewsData.reviews.length === 0 ? (

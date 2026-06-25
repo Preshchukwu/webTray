@@ -728,4 +728,35 @@ export interface SubmitReviewPayload {
   fullname: string;
 }
 
+export interface StoreReview {
+  id: number;
+  storeId: number;
+  customerId: number | null;
+  fullname: string | null;
+  email: string | null;
+  rating: number;
+  review: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export interface StoreReviewsResponse {
+  reviews: StoreReview[];
+  pagination: ReviewPagination;
+}
+
+export interface StoreReviewsAggregateResponse {
+  storeId: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
+export interface SubmitStoreReviewPayload {
+  rating: number;
+  review: string;
+  fullname?: string;
+}
+
+
 
