@@ -193,7 +193,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       setIsPlacingOrder(true);
       try {
         const payload = {
-          callbackUrl: `${window.location.origin}/store/${slug}/order-success`,
+          callbackUrl: `${window.location.origin}/${slug}/order-success`,
           isDelivery,
           customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
           phone: shippingInfo.phone,
@@ -237,19 +237,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     }
     
     // Redirect to success page for simple completion
-    router.push(`/store/${slug}/order-success`);
+    router.push(`/${slug}/order-success`);
   };
 
   const handleRemoveItem = (productId: number, productName: string) => {
     if (buyNowId) {
-      router.push(`/store/${slug}`);
+      router.push(`/${slug}`);
       return;
     }
     removeFromCart(productId);
     toast.success(`${productName} removed from cart`);
     
     if (cart.length === 1) {
-      router.push(`/store/${slug}`);
+      router.push(`/${slug}`);
     }
   };
 
@@ -269,8 +269,8 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     
     // Use the first product's URL to ensure WhatsApp picks up its OG image
     const firstProductUrl = effectiveCart[0]?.id 
-      ? `${storeBaseUrl}/store/${slug}/product/${effectiveCart[0].id}`
-      : `${storeBaseUrl}/store/${slug}`;
+      ? `${storeBaseUrl}/${slug}/product/${effectiveCart[0].id}`
+      : `${storeBaseUrl}/${slug}`;
 
     const message = `Hello! I'm interested in the following items from *${store.storeName || "your store"}*:\n\n${itemsList}\n\n*Subtotal:* ₦ ${subtotal.toLocaleString()}\n\n*View more details here:* ${firstProductUrl}`;
 
@@ -300,7 +300,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
             Add some products to your cart before checking out
           </p>
           <button
-            onClick={() => router.push(`/store/${slug}`)}
+            onClick={() => router.push(`/${slug}`)}
             className="bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
           >
             Continue Shopping

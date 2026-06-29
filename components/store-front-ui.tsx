@@ -11,6 +11,7 @@ import CategoryFilter from "@/components/store-front/store-front-cate-filter";
 import ProductsGrid from "@/components/store-front/store-front-product-grid";
 import StoreFrontSkeleton from "./store-front/store-front-skeleton";
 import { Search, ShoppingCart } from "lucide-react";
+import { motion } from "motion/react";
 
 interface StorefrontUIProps {
   slug: string;
@@ -52,6 +53,13 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
     return "";
   });
 
+  const [sortOrder, setSortOrder] = useState<"featured" | "price-asc" | "price-desc">(() => {
+    if (typeof window !== 'undefined') {
+      return (sessionStorage.getItem(`storefront_${slug}_sort`) as any) || "featured";
+    }
+    return "featured";
+  });
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -68,8 +76,9 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
       sessionStorage.setItem(CATEGORY_KEY, JSON.stringify(selectedCategoryIds));
       sessionStorage.setItem(SEARCH_KEY, searchQuery);
       sessionStorage.setItem(PAGE_KEY, currentPage.toString());
+      sessionStorage.setItem(`storefront_${slug}_sort`, sortOrder);
     }
-  }, [selectedCategoryIds, searchQuery, currentPage, CATEGORY_KEY, SEARCH_KEY, PAGE_KEY]);
+  }, [selectedCategoryIds, searchQuery, currentPage, sortOrder, CATEGORY_KEY, SEARCH_KEY, PAGE_KEY, slug]);
 
   // Reset pagination when categories or search change ONLY if called manually
   const handleCategoryToggle = (categoryId: number) => {
@@ -107,13 +116,20 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
       );
     }
 
-    // Sort so featured equal true is first
+    // Sort products based on selected sort order
     return visibleProducts.sort((a, b) => {
-      if (a.feature && !b.feature) return -1;
-      if (!a.feature && b.feature) return 1;
-      return 0; // maintain original order otherwise
+      if (sortOrder === "price-asc") {
+        return parseFloat(a.price) - parseFloat(b.price);
+      } else if (sortOrder === "price-desc") {
+        return parseFloat(b.price) - parseFloat(a.price);
+      } else {
+        // Default: featured equals true is first
+        if (a.feature && !b.feature) return -1;
+        if (!a.feature && b.feature) return 1;
+        return 0; // maintain original order otherwise
+      }
     });
-  }, [allProducts, categoryProducts, selectedCategoryIds.length, searchQuery]);
+  }, [allProducts, categoryProducts, selectedCategoryIds.length, searchQuery, sortOrder]);
 
   const isDefaultFilter = selectedCategoryIds.length === 0;
 
@@ -125,23 +141,11 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
 
 
 
-  // Apply filter button handler (if you still need a button)
-  const handleApplyFilter = () => {
-    // Filter is already applied automatically when selectedCategoryIds changes
-    // This can be used for additional logic or UI feedback if needed
-    if (selectedCategoryIds.length === 0) {
-      toast.info("Please select at least one category");
-    }
-  };
+  // Handle clearing filters is already defined below
 
-  // Reset to default (first category)
+  // Reset to default (all categories)
   const handleClearFilters = () => {
-    if (categories.length > 0) {
-      const firstCategoryId = categories[0].id;
-      setSelectedCategoryIds([firstCategoryId]);
-    } else {
-      setSelectedCategoryIds([]);
-    }
+    setSelectedCategoryIds([]);
   };
 
   const getCategoryName = (categoryId: number) => {
@@ -195,44 +199,75 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
-        <div className="space-y-6 p-4 max-w-7xl mx-auto">
-          <StoreFrontSlide />
-          <h1 className="font-bold text-[#4D4D4D] text-2xl">Products</h1>
+      <div className="min-h-screen bg-gray-50 overflow-hidden">
+        <motion.div 
+          className="space-y-6 p-4 max-w-7xl mx-auto"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+            }
+          }}
+        >
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}>
+            <StoreFrontSlide />
+          </motion.div>
+          
+          <motion.h1 
+            className="font-bold text-[#4D4D4D] text-2xl"
+            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.5 } } }}
+          >
+            Products
+          </motion.h1>
 
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="w-full lg:w-[20%]">
+          <motion.div 
+            className="flex flex-col gap-6 w-full"
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
+          >
+            <div className="flex flex-col gap-4 w-full">
+              {/* 1. Search - Highest Priority (Intent-driven) */}
+              <div className="relative w-full shadow-sm rounded-xl">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search for products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all text-base"
+                />
+              </div>
+
+              {/* 2. Categories - Medium Priority (Browsing-driven) */}
               <CategoryFilter
                 categories={categories}
                 selectedCategoryIds={selectedCategoryIds}
                 onCategoryToggle={handleCategoryToggle}
-                onApplyFilter={handleApplyFilter}
+                onClearFilter={handleClearFilters}
                 isLoading={isFetchingCategories}
               />
-            </div>
 
-            <div className="w-full lg:w-[80%]">
-              <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <p className="text-gray-600 font-medium whitespace-nowrap">
+              {/* 3. Results Info & Sort - Lowest Priority (Refinement) */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 pt-2 border-t border-gray-100">
+                <p className="text-gray-500 text-sm font-medium">
                   {selectedCategoryIds.length > 0
-                    ? `Showing products from ${selectedCategoryIds.length
-                    } categor${selectedCategoryIds.length === 1 ? "y" : "ies"
-                    }`
-                    : "No category selected"}
+                    ? `Showing ${selectedCategoryIds.length} categor${selectedCategoryIds.length === 1 ? "y" : "ies"}`
+                    : "All products"}
                 </p>
 
-                <div className="relative w-full sm:w-64 lg:w-72">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-                  />
-                </div>
+                <select 
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as any)}
+                  className="block w-full sm:w-auto py-2 pl-3 pr-8 border border-gray-200 rounded-lg bg-white text-gray-700 font-medium focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm cursor-pointer hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  <option value="featured">Sort: Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                </select>
               </div>
 
               {isFetchingProducts && (
@@ -326,8 +361,8 @@ export default function StorefrontUI({ slug }: StorefrontUIProps) {
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </>
   );

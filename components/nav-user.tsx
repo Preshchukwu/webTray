@@ -42,35 +42,49 @@ export function NavUser({
     phone?: string
   }
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile, setOpenMobile } = useSidebar()
   const router = useRouter()
   const logout = useAuthStore((s) => s.logout)
-  const isLoading = useAuthStore((s) => s.loading)  
+  const isLoading = useAuthStore((s) => s.loading)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
 
   const handleLogout = async (event: Event) => {
-  event.preventDefault();
-  if (isLoading) return;
+    event.preventDefault();
+    if (isLoading) return;
 
-  setIsLoggingOut(true); // Set logging out state
-  try {
-    // still thinking of a better way
-    await logout();
-    router.push("/signin");
-  } catch (error) {
-    console.error("Logout failed:", error);
-  } finally {
-    setIsLoggingOut(false); // Reset logging out state
+    setIsLoggingOut(true); // Set logging out state
+    try {
+      // still thinking of a better way
+      await logout();
+      router.push("/signin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false); // Reset logging out state
+    }
+  };
+
+  const closeMobileDrawer = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
   }
-};
 
-const handleSubscriptionClick = () => {
-  // Close the dropdown if it's open
-  // Since we don't have the state here, we'll rely on the natural behavior
-  // or you can pass a close handler if needed.
-  router.push('/dashboard/subscription');
-};
+  const handleAccountClick = () => {
+    closeMobileDrawer()
+    // router.push('/profile')
+  }
+
+  const handleSubscriptionClick = () => {
+    closeMobileDrawer()
+    router.push('/dashboard/subscription')
+  }
+
+  const handleNotificationClick = () => {
+    closeMobileDrawer()
+    router.push('/dashboard/notification')
+  }
 
 
   return (
@@ -84,7 +98,9 @@ const handleSubscriptionClick = () => {
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
                 <AvatarImage src={user.avatar} alt={user.fullname} />
-                <AvatarFallback className="rounded-lg">  {user.fullname?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {user.fullname?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.fullname}</span>
@@ -117,7 +133,7 @@ const handleSubscriptionClick = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAccountClick}>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
@@ -125,14 +141,14 @@ const handleSubscriptionClick = () => {
                 <IconCreditCard />
                 Subscription
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleNotificationClick}>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
 
-           {/* <DropdownMenuItem
+            {/* <DropdownMenuItem
               // prevent the dropdown from auto-closing; handle logout manually
               onSelect={(event: any) => {
                 event.preventDefault()
@@ -160,17 +176,17 @@ const handleSubscriptionClick = () => {
               )}
               {isLoggingOut ? "Logging out..." : "Log out"}
             </DropdownMenuItem> */}
-         <DropdownMenuItem
-      onSelect={handleLogout}
-      disabled={isLoading}
-    >
-      {isLoading ? (
-        <IconLoader className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <IconLogout className="mr-2 h-4 w-4" />
-      )}
-      {isLoading ? "Logging out..." : "Log out"}
-    </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={handleLogout}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <IconLoader className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <IconLogout className="mr-2 h-4 w-4" />
+              )}
+              {isLoading ? "Logging out..." : "Log out"}
+            </DropdownMenuItem>
 
           </DropdownMenuContent>
         </DropdownMenu>

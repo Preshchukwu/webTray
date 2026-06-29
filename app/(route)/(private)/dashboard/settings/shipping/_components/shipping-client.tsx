@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { Truck, Globe, Plus, Pencil, Trash2 } from "lucide-react"
+import { SettingsPageHeader } from "../../_components/settings-page-header"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -50,26 +50,17 @@ export function ShippingClient() {
 
   return (
     <div className="flex flex-col gap-8 max-w-[1000px]">
-      {/* Breadcrumbs & Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-1 text-[12px] font-regular text-[#676767]">
-              <Link href="/dashboard/settings" className="hover:text-[#365BEB] transition-colors">
-                Settings
-              </Link>
-              <span className="mx-1">/</span>
-              <span>Shipping & Delivery</span>
-            </div>
-            <h1 className="text-[16px] leading-[24px] md:text-[20px] font-bold text-[#4D4D4D]">Shipping & Delivery Settings</h1>
-            <p className="text-[#4D4D4D] text-[14px] leading-[24px] font-regular md:text-[16px]">Define shipping areas and delivery methods</p>
-          </div>
-          <Button className="h-[48px] px-6 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-[12px] font-semibold gap-2">
+      <SettingsPageHeader
+        segment="Shipping & Delivery"
+        title="Shipping & Delivery Settings"
+        description="Define shipping areas and delivery methods"
+        action={
+          <Button className="h-[48px] px-6 bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-[12px] font-semibold gap-2 shrink-0 w-full sm:w-auto">
             <Plus className="w-5 h-5" />
             Add Shipping Zone
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="flex flex-col gap-6">
         {/* Delivery Method Cards */}

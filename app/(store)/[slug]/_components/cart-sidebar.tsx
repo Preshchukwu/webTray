@@ -154,7 +154,7 @@ export default function CartSidebar({ showCart, setShowCart }: CartSidebarProps)
             <Button
               onClick={() => {
                 setShowCart(false);
-                router.push(`/store/${slug}/checkout`);
+                router.push(`/${slug}/checkout`);
               }}
               className="w-full bg-[#111827] text-white py-3 text-[16px] rounded-lg font-bold transition shadow-lg hover:bg-[#1f2937]"
             >

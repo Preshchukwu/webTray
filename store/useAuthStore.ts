@@ -46,6 +46,8 @@ interface AuthState {
   logout: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
   refreshStores: () => Promise<void>;
+  completedOnboardingUsers: Record<number, boolean>;
+  setCompletedOnboarding: (userId: number, state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -57,6 +59,16 @@ export const useAuthStore = create<AuthState>()(
       lastActiveStoreId: null,
       stores: [],
       activeStore: null,
+      completedOnboardingUsers: {},
+
+      setCompletedOnboarding: (userId, state) => {
+        set((prev) => ({
+          completedOnboardingUsers: {
+            ...prev.completedOnboardingUsers,
+            [userId]: state,
+          },
+        }));
+      },
 
       setHasHydrated: (state) => {
         set({ _hasHydrated: state });
@@ -365,6 +377,7 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         lastActiveStoreId: state.lastActiveStoreId,
+        completedOnboardingUsers: state.completedOnboardingUsers,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {

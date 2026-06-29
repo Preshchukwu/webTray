@@ -20,14 +20,17 @@ const shouldRedirectToSignin = () => {
   if (typeof window === "undefined") return false;
   const path = window.location.pathname;
   // Don't redirect if we are already on auth pages or a storefront
-  const isAuthPage =
-    path === "/signin" ||
-    path === "/signup" ||
-    path.startsWith("/forgot-password") ||
-    path.startsWith("/reset-password") ||
-    path.startsWith("/otp-verification");
-  const isStorePage = path.startsWith("/store/");
-  return !isAuthPage && !isStorePage;
+    const isAuthPage =
+      path === "/signin" ||
+      path === "/signup" ||
+      path.startsWith("/forgot-password") ||
+      path.startsWith("/reset-password") ||
+      path.startsWith("/otp-verification");
+    const isStorePage = path !== "/" && !isAuthPage && ![
+      "/dashboard", "/profile", "/register-business", "/welcome",
+      "/contact-us", "/feature-page", "/pricing-page", "/wait-list"
+    ].some(p => path.startsWith(p));
+    return !isAuthPage && !isStorePage;
 };
 
 const api = axios.create({
@@ -40,6 +43,20 @@ export const publicApi = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
+
+publicApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Extract backend error message
+    if (error.response?.data) {
+      const backendMessage = error.response.data.responseMessage || error.response.data.message;
+      if (backendMessage) {
+        error.message = backendMessage;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 // For handling multiple concurrent 401s
 let isRefreshing = false;
@@ -167,6 +184,14 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (err) {
         return Promise.reject(err);
+      }
+    }
+
+    // Extract backend error message
+    if (error.response?.data) {
+      const backendMessage = error.response.data.responseMessage || error.response.data.message;
+      if (backendMessage) {
+        error.message = backendMessage;
       }
     }
 

@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useRef, useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Category {
   id: number;
@@ -9,7 +10,7 @@ interface CategoryFilterProps {
   categories: Category[];
   selectedCategoryIds: number[];
   onCategoryToggle: (categoryId: number) => void;
-  onApplyFilter: () => void;
+  onClearFilter: () => void;
   isLoading?: boolean;
 }
 
@@ -17,61 +18,139 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   categories,
   selectedCategoryIds,
   onCategoryToggle,
-  onApplyFilter,
+  onClearFilter,
   isLoading = false
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  const checkScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      // Use a small tolerance of 2px for minor zoom/subpixel differences
+      setShowLeftArrow(scrollLeft > 2);
+      setShowRightArrow(scrollWidth - scrollLeft - clientWidth > 2);
+    }
+  };
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 240;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Check scroll capability on mount, categories change, and resize
+  useEffect(() => {
+    checkScroll();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkScroll);
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [categories]);
+
+  // Optional: Hide scrollbars with a style tag for better cross-browser support without modifying global css
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Categories</h2>
-        <div className="space-y-3">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <div key={item} className="flex items-center space-x-3">
-              <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-            </div>
-          ))}
-        </div>
-        <button className="w-full bg-gray-300 text-gray-500 font-semibold py-2 px-2 rounded-lg mt-8 cursor-not-allowed">
-          Apply Filter
-        </button>
+      <div className="flex space-x-3 overflow-hidden py-2 w-full">
+        {[1, 2, 3, 4, 5, 6, 7].map((item) => (
+          <div key={item} className="h-10 w-24 bg-gray-200 rounded-full animate-pulse flex-shrink-0"></div>
+        ))}
       </div>
     );
   }
 
+  if (categories.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="bg-white rounded-sm space-y-2 font-semibold border border-[#EBEBEB] p-2">
-      <h2 className="text-[14px] text-[#4D4D4D] ">Categories</h2>
-      
-      <div className="space-y-3 mb-8">
-        {categories.map((category) => (
-          <label key={category.id} className="flex items-center space-x-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={selectedCategoryIds.includes(category.id)}
-              onChange={() => onCategoryToggle(category.id)}
-              className="w-4 h-4 text-[#111827] bg-gray-100 border-gray-300 rounded focus:ring-[#111827]"
-            />
-            <span className="text-gray-700 font-medium">{category.name}</span>
-          </label>
-        ))}
+    <div className="relative flex items-center w-full">
+      {/* Left Gradient & Scroll Button */}
+      {showLeftArrow && (
+        <>
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10" />
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-1 z-20 flex items-center justify-center w-9 h-9 bg-white border border-gray-200 shadow-md rounded-full hover:bg-gray-50 active:scale-95 transition-all text-gray-700 hover:text-gray-900"
+            aria-label="Scroll Left"
+          >
+            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        </>
+      )}
+
+      {/* Categories Scroll Container */}
+      <div 
+        ref={scrollContainerRef}
+        onScroll={checkScroll}
+        className="flex space-x-2 overflow-x-auto py-2 w-full hide-scrollbar px-1"
+      >
+        <button
+          onClick={onClearFilter}
+          className={`flex-shrink-0 px-5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+            selectedCategoryIds.length === 0 
+              ? 'bg-gray-900 text-white shadow-sm' 
+              : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+          }`}
+        >
+          All Categories
+        </button>
         
-        {categories.length === 0 && (
-          <p className="text-gray-500 text-sm">No categories available</p>
-        )}
+        {categories.map((category) => {
+          const isSelected = selectedCategoryIds.includes(category.id);
+          return (
+            <button
+              key={category.id}
+              onClick={() => onCategoryToggle(category.id)}
+              className={`flex-shrink-0 px-5 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
+                isSelected 
+                  ? 'bg-gray-900 text-white shadow-sm' 
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {category.name}
+            </button>
+          );
+        })}
       </div>
 
-      <button
-        onClick={onApplyFilter}
-        disabled={selectedCategoryIds.length === 0}
-        className={`w-full font-semibold py-3 px-4 rounded-lg transition-colors duration-200 ${
-          selectedCategoryIds.length === 0
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-[#111827] hover:bg-[#111827] text-white'
-        }`}
-      >
-        Apply Filter
-      </button>
+      {/* Right Gradient & Scroll Button */}
+      {showRightArrow && (
+        <>
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none z-10" />
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-1 z-20 flex items-center justify-center w-9 h-9 bg-white border border-gray-200 shadow-md rounded-full hover:bg-gray-50 active:scale-95 transition-all text-gray-700 hover:text-gray-900"
+            aria-label="Scroll Right"
+          >
+            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+          </button>
+        </>
+      )}
     </div>
   )
 }

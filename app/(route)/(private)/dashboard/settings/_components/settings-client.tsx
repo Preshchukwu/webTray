@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Search, User, CreditCard, Bell, ShieldCheck, Landmark, BanknoteArrowUp, TruckElectric } from "lucide-react"
+import { SettingsPageHeader } from "./settings-page-header"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
@@ -88,12 +89,10 @@ const settingsOptions: SettingOption[] = [
 export function SettingsClient() {
   return (
     <div className="flex flex-col gap-8">
-      {/* Breadcrumbs & Header */}
-      <div className="flex flex-col gap-2 leading-[100%]">
-        <span className="text-[12px] font-regular text-[#676767]">Settings</span>
-        <h1 className="text-[16px] leading-[24px] md:text-[20px] font-bold text-[#4D4D4D]">Settings</h1>
-        <p className="text-[#4D4D4D] text-[14px] leading-[24px] font-regular md:text-[16px]">Here&apos;s what&apos;s happening with your business today.</p>
-      </div>
+      <SettingsPageHeader
+        title="Settings"
+        description="Here's what's happening with your business today."
+      />
 
       {/* Search Settings */}
       <div className="relative w-full max-w-[480px]">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, use } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Minus,
@@ -9,12 +9,16 @@ import {
   Heart,
   ChevronLeft,
   ChevronRight,
-  Package
+  Package,
 } from "lucide-react";
 import Image from "next/image";
 import { useStorefront } from "@/hooks/use-customer-store";
 import { useCartStore } from "@/store/use-cart-store";
 import { toast } from "sonner";
+import { StoreRatingModal } from "@/components/store-rating-modal";
+import { useProductReviews } from "@/hooks/use-product-reviews";
+import { ProductReviewsModal } from "@/components/product-reviews-modal";
+import { useStoreReviews } from "@/hooks/use-store-reviews";
 
 interface ProductClientProps {
   slug: string;
@@ -129,14 +133,69 @@ const ProductDetailSkeleton = () => {
 
 export const ProductClient = ({ slug, productId }: ProductClientProps) => {
   const router = useRouter();
-  const { allProducts, isFetchingAllProducts, categories } = useStorefront(slug);
+  const { allProducts, isFetchingAllProducts, categories, store } = useStorefront(slug);
   const addToCart = useCartStore((state) => state.addToCart);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [hasRatedStore, setHasRatedStore] = useState(false);
+
+  const ratingStorageKey = `store-rating-completed:${slug}`;
+  const ratingSnoozeKey = `store-rating-snoozed:${slug}`;
 
   const product = useMemo(() => {
     return allProducts.find((p) => p.id === parseInt(productId));
   }, [allProducts, productId]);
+
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const parsedProductId = product?.id || 0;
+  const { aggregate } = useProductReviews(parsedProductId);
+  const { submitReview: submitStoreReview } = useStoreReviews(store?.id || 0);
+
+  useEffect(() => {
+    if (!product) return;
+
+    const stored = localStorage.getItem(ratingStorageKey);
+    if (stored === "true") {
+      setHasRatedStore(true);
+      return;
+    }
+
+    const isSnoozed = sessionStorage.getItem(ratingSnoozeKey) === "true";
+    if (isSnoozed) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowRatingModal(true);
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
+  }, [product, ratingStorageKey, ratingSnoozeKey]);
+
+  const handleSubmitStoreRating = async (rating: number, note: string) => {
+    if (!store?.id) {
+      toast.error("Store information is not loaded yet");
+      return;
+    }
+    try {
+      await submitStoreReview({
+        rating,
+        fullname: note.trim() || undefined,
+        review: "Nice store",
+      });
+      localStorage.setItem(ratingStorageKey, "true");
+      setHasRatedStore(true);
+      setShowRatingModal(false);
+    } catch (err) {
+      // Error handling is managed by the mutation hook/toast
+    }
+  };
+
+  const handleSkipStoreRating = () => {
+    sessionStorage.setItem(ratingSnoozeKey, "true");
+    setShowRatingModal(false);
+  };
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
@@ -167,7 +226,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
             Product Not Found
           </h2>
           <button
-            onClick={() => router.push(`/store/${slug}`)}
+            onClick={() => router.push(`/${slug}`)}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Back to Store
@@ -207,7 +266,8 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
     const result = addToCart(product, quantity);
 
     if (result !== "no_stock") {
-      router.push(`/store/${slug}/checkout`);
+      sessionStorage.setItem('buyNowProduct', JSON.stringify({ ...product, quantity }));
+      router.push(`/${slug}/checkout`);
     } else {
       toast.error(`Cannot add more of ${product.name} to the cart.`);
     }
@@ -352,16 +412,29 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
 
             {/* Rating */}
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
-                {[1, 2, 3, 4].map((star) => (
-                  <span key={star} className="text-yellow-400 text-sm">
-                    ★
-                  </span>
-                ))}
-                <span className="text-gray-300 text-sm">★</span>
+              <div 
+                className="flex cursor-pointer"
+                onClick={() => setShowReviewsModal(true)}
+              >
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const filled = star <= Math.round(aggregate?.averageRating || 0);
+                  return (
+                    <span 
+                      key={star} 
+                      className={`text-sm ${filled ? "text-yellow-400" : "text-gray-300"}`}
+                    >
+                      ★
+                    </span>
+                  );
+                })}
               </div>
-              <span className="text-xs text-blue-600 hover:underline cursor-pointer">
-                (See ratings)
+              <span 
+                onClick={() => setShowReviewsModal(true)}
+                className="text-xs text-blue-600 hover:underline cursor-pointer font-medium"
+              >
+                {aggregate?.totalReviews && aggregate.totalReviews > 0
+                  ? `(${aggregate.averageRating.toFixed(1)} / 5 from ${aggregate.totalReviews} ${aggregate.totalReviews === 1 ? "review" : "reviews"})`
+                  : "(No reviews yet - Rate)"}
               </span>
             </div>
 
@@ -432,7 +505,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
                 >
                   <div 
                     className="aspect-square bg-gray-50 cursor-pointer relative flex items-center justify-center"
-                    onClick={() => router.push(`/store/${slug}/product/${item.id}`)}
+                    onClick={() => router.push(`/${slug}/product/${item.id}`)}
                   >
                     {item.images?.[0] ? (
                       <Image
@@ -448,7 +521,7 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
                   <div className="p-3">
                     <h4 
                       className="font-semibold text-sm text-gray-900 mb-1 truncate cursor-pointer"
-                      onClick={() => router.push(`/store/${slug}/product/${item.id}`)}
+                      onClick={() => router.push(`/${slug}/product/${item.id}`)}
                     >
                       {item.name}
                     </h4>
@@ -466,7 +539,8 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
                         onClick={() => {
                           const result = addToCart(item, 1);
                           if (result !== "no_stock") {
-                            router.push(`/store/${slug}/checkout`);
+                            sessionStorage.setItem('buyNowProduct', JSON.stringify({ ...item, quantity: 1 }));
+                            router.push(`/${slug}/checkout`);
                           } else {
                             toast.error(`Cannot add more of ${item.name} to the cart.`);
                           }
@@ -493,6 +567,28 @@ export const ProductClient = ({ slug, productId }: ProductClientProps) => {
           </div>
         )}
       </div>
+
+      <StoreRatingModal
+        open={showRatingModal && !hasRatedStore}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleSkipStoreRating();
+          }
+        }}
+        onSubmit={handleSubmitStoreRating}
+        onSkip={handleSkipStoreRating}
+        storeName={store?.storeName || slug}
+        logoUrl={store?.logoUrl}
+      />
+
+      {product && (
+        <ProductReviewsModal
+          open={showReviewsModal}
+          onOpenChange={setShowReviewsModal}
+          productId={product.id}
+          productName={product.name}
+        />
+      )}
     </div>
   );
 };

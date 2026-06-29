@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import {
   Search,
   Check,
@@ -18,6 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Product } from "@/types";
+import { useProduct } from "@/hooks/use-product";
+import { useAds } from "@/hooks/use-ads";
+import { toast } from "sonner";
 
 const RATE_PER_DAY = 500;
 const REACH_MIN_PER_DAY = 150;
@@ -38,24 +43,6 @@ const GRADIENT_COLORS = [
   "from-yellow-100 to-lime-200",
   "from-teal-100 to-cyan-200",
   "from-violet-100 to-purple-200",
-];
-
-interface MockProduct {
-  id: number;
-  name: string;
-  price: string;
-  category: string;
-}
-
-const MOCK_PRODUCTS: MockProduct[] = [
-  { id: 1, name: "Ankara Maxi Dress", price: "45000", category: "Fashion" },
-  { id: 2, name: "Handmade Leather Bag", price: "28000", category: "Accessories" },
-  { id: 3, name: "Organic Shea Butter", price: "3500", category: "Beauty" },
-  { id: 4, name: "Custom Phone Case", price: "5000", category: "Tech" },
-  { id: 5, name: "Beaded Necklace Set", price: "12000", category: "Jewelry" },
-  { id: 6, name: "African Print Tote Bag", price: "8500", category: "Accessories" },
-  { id: 7, name: "Handwoven Basket", price: "6000", category: "Home & Living" },
-  { id: 8, name: "Body Scrub Kit", price: "4500", category: "Beauty" },
 ];
 
 export interface PlacedAd {
@@ -84,51 +71,67 @@ const fmt = (n: number) => `₦${n.toLocaleString()}`;
 export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalProps) {
   const [step, setStep] = useState(1);
   const [search, setSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [selectedDuration, setSelectedDuration] = useState<DurationChoice>(14);
   const [customDays, setCustomDays] = useState("");
   const [paying, setPaying] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const { products } = useProduct();
+  const { initiateAd } = useAds();
 
   const activeDays = useMemo(() => {
     if (selectedDuration === "custom") return parseInt(customDays) || 0;
     return selectedDuration;
   }, [selectedDuration, customDays]);
 
-  const totalCost = activeDays * RATE_PER_DAY;
+  const costPerProduct = activeDays * RATE_PER_DAY;
+  const totalCost = costPerProduct * (selectedProducts.length || 1);
   const reachMin = activeDays * REACH_MIN_PER_DAY;
   const reachMax = activeDays * REACH_MAX_PER_DAY;
 
-  const filteredProducts = MOCK_PRODUCTS.filter(
+  const filteredProducts = (products || []).filter(
     (p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.category.toLowerCase().includes(search.toLowerCase())
+      p.description?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const productGradient = (product: MockProduct) => {
-    const idx = MOCK_PRODUCTS.findIndex((p) => p.id === product.id);
+  const productGradient = (product: Product) => {
+    const idx = (products || []).findIndex((p) => p.id === product.id);
     return GRADIENT_COLORS[idx % GRADIENT_COLORS.length];
   };
 
-  const handlePay = async () => {
-    setPaying(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setPaying(false);
-    setSuccess(true);
-
-    const now = new Date();
-    onAdPlaced({
-      id: `AD-${Date.now()}`,
-      productId: selectedProduct!.id,
-      productName: selectedProduct!.name,
-      productCategory: selectedProduct!.category,
-      duration: activeDays,
-      budget: totalCost,
-      status: "pending",
-      adLink: null,
-      startDate: now.toISOString().split("T")[0],
-      reach: { min: reachMin, max: reachMax },
+  const handleProductSelect = (product: Product) => {
+    setSelectedProducts((prev) => {
+      const exists = prev.some((p) => p.id === product.id);
+      if (exists) {
+        return prev.filter((p) => p.id !== product.id);
+      } else {
+        return [...prev, product];
+      }
     });
+  };
+
+  const handlePay = async () => {
+    if (selectedProducts.length === 0) return;
+    try {
+      setPaying(true);
+      const res = await initiateAd({
+        productIds: selectedProducts.map((p) => p.id),
+        days: activeDays,
+        callbackUrl: `${window.location.origin}/dashboard/ads`,
+      });
+      if (res.authorization_url) {
+        // Redirect to Paystack Checkout
+        window.location.href = res.authorization_url;
+      } else {
+        toast.error("Failed to initialize payment gateway");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to initiate ad campaign");
+    } finally {
+      setPaying(false);
+    }
   };
 
   const handleClose = () => {
@@ -136,14 +139,14 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
     setTimeout(() => {
       setStep(1);
       setSearch("");
-      setSelectedProduct(null);
+      setSelectedProducts([]);
       setSelectedDuration(14);
       setCustomDays("");
       setSuccess(false);
     }, 300);
   };
 
-  const canProceedStep1 = !!selectedProduct;
+  const canProceedStep1 = selectedProducts.length > 0;
   const canProceedStep2 = activeDays > 0;
 
   return (
@@ -202,15 +205,15 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          {/* ── Step 1: Choose Product ── */}
+          {/* ── Step 1: Choose Products ── */}
           {!success && step === 1 && (
             <div className="flex flex-col gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-[#111827]">
-                  Choose a product to promote
+                  Choose products to promote
                 </h2>
                 <p className="text-sm text-[#808080] mt-0.5">
-                  Select the product you want to run ads for
+                  Select one or more products you want to run ads for
                 </p>
               </div>
               <div className="relative">
@@ -223,49 +226,60 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
                 />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {filteredProducts.map((product) => (
-                  <button
-                    key={product.id}
-                    onClick={() => setSelectedProduct(product)}
-                    className={cn(
-                      "relative rounded-[16px] border-2 p-3 text-left transition-all hover:border-blue-300",
-                      selectedProduct?.id === product.id
-                        ? "border-[#365BEB] bg-blue-50"
-                        : "border-gray-200 bg-white"
-                    )}
-                  >
-                    {selectedProduct?.id === product.id && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#365BEB] flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                    <div
+                {filteredProducts.map((product) => {
+                  const isSelected = selectedProducts.some((p) => p.id === product.id);
+                  return (
+                    <button
+                      key={product.id}
+                      onClick={() => handleProductSelect(product)}
                       className={cn(
-                        "w-full h-20 rounded-[10px] bg-gradient-to-br mb-2 flex items-center justify-center",
-                        productGradient(product)
+                        "relative rounded-[16px] border-2 p-3 text-left transition-all hover:border-blue-300 cursor-pointer",
+                        isSelected
+                          ? "border-[#365BEB] bg-blue-50"
+                          : "border-gray-200 bg-white"
                       )}
                     >
-                      <span className="text-2xl font-bold text-white/40 uppercase">
-                        {product.name.slice(0, 2)}
+                      {/* Image container — isolated stacking context */}
+                      <div className="w-full h-20 rounded-[10px] overflow-hidden mb-2 relative flex items-center justify-center bg-gray-50">
+                        {product.images?.[0] ? (
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className={cn("w-full h-full bg-gradient-to-br flex items-center justify-center", productGradient(product))}>
+                            <span className="text-2xl font-bold text-white/40 uppercase">
+                              {product.name.slice(0, 2)}
+                            </span>
+                          </div>
+                        )}
+                        {/* Check badge rendered INSIDE image div but on top via z-index */}
+                        {isSelected && (
+                          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#365BEB] flex items-center justify-center z-20 shadow-md animate-in zoom-in duration-100">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold text-[#111827] leading-tight line-clamp-2">
+                        {product.name}
+                      </p>
+                      <p className="text-xs text-[#808080] mt-0.5">
+                        {fmt(parseFloat(product.price))}
+                      </p>
+                      <span className="mt-1 inline-block px-1.5 py-0.5 rounded-full bg-gray-100 text-[10px] text-gray-500">
+                        Product
                       </span>
-                    </div>
-                    <p className="text-xs font-semibold text-[#111827] leading-tight line-clamp-2">
-                      {product.name}
-                    </p>
-                    <p className="text-xs text-[#808080] mt-0.5">
-                      {fmt(parseInt(product.price))}
-                    </p>
-                    <span className="mt-1 inline-block px-1.5 py-0.5 rounded-full bg-gray-100 text-[10px] text-gray-500">
-                      {product.category}
-                    </span>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* ── Step 2: Configure Ad ── */}
-          {!success && step === 2 && selectedProduct && (
+          {!success && step === 2 && selectedProducts.length > 0 && (
             <div className="flex flex-col gap-5">
               <div>
                 <h2 className="text-lg font-semibold text-[#111827]">
@@ -274,7 +288,9 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
                 <p className="text-sm text-[#808080] mt-0.5">
                   Choose how long to run ads for{" "}
                   <span className="font-medium text-[#4D4D4D]">
-                    {selectedProduct.name}
+                    {selectedProducts.length === 1
+                      ? selectedProducts[0].name
+                      : `${selectedProducts.length} selected products`}
                   </span>
                 </p>
               </div>
@@ -413,7 +429,7 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
           )}
 
           {/* ── Step 3: Review & Pay ── */}
-          {!success && step === 3 && selectedProduct && (
+          {!success && step === 3 && selectedProducts.length > 0 && (
             <div className="flex flex-col gap-5">
               <div>
                 <h2 className="text-lg font-semibold text-[#111827]">
@@ -424,32 +440,42 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
                 </p>
               </div>
 
-              <div className="rounded-[16px] border border-gray-200 overflow-hidden">
+              <div className="rounded-[16px] border border-gray-200 overflow-hidden bg-white">
                 <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
                   <p className="text-xs font-semibold text-[#808080] uppercase tracking-wide">
                     Ad Summary
                   </p>
                 </div>
                 <div className="p-4 space-y-4">
-                  <div className="flex gap-3 items-center">
-                    <div
-                      className={cn(
-                        "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center flex-shrink-0",
-                        productGradient(selectedProduct)
-                      )}
-                    >
-                      <span className="text-sm font-bold text-white/40 uppercase">
-                        {selectedProduct.name.slice(0, 2)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#111827]">
-                        {selectedProduct.name}
-                      </p>
-                      <p className="text-xs text-[#808080]">
-                        {selectedProduct.category}
-                      </p>
-                    </div>
+                  <div className="space-y-3 max-h-[160px] overflow-y-auto pr-1">
+                    {selectedProducts.map((prod) => (
+                      <div key={prod.id} className="flex gap-3 items-center pb-2 border-b border-gray-50 last:border-0">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 relative bg-gray-50 border border-gray-100">
+                          {prod.images?.[0] ? (
+                            <Image
+                              src={prod.images[0]}
+                              alt={prod.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className={cn("w-full h-full bg-gradient-to-br flex items-center justify-center", productGradient(prod))}>
+                              <span className="text-xs font-bold text-white/40 uppercase">
+                                {prod.name.slice(0, 2)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-[#111827] truncate">
+                            {prod.name}
+                          </p>
+                          <p className="text-xs text-[#808080]">
+                            ₦{parseFloat(prod.price).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="border-t border-gray-100 pt-3 space-y-2">
@@ -460,22 +486,34 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#808080]">Daily rate</span>
+                      <span className="text-[#808080]">Rate per product</span>
                       <span className="text-[#4D4D4D]">
-                        {fmt(RATE_PER_DAY)}/day
+                        {fmt(RATE_PER_DAY)}/day × {activeDays} days = {fmt(costPerProduct)}
                       </span>
                     </div>
+                    {selectedProducts.length > 1 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-[#808080]">Products</span>
+                        <span className="text-[#4D4D4D]">
+                          {fmt(costPerProduct)} × {selectedProducts.length} products
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-[#808080]">Estimated reach</span>
                       <span className="text-[#4D4D4D]">
-                        {reachMin.toLocaleString()}–{reachMax.toLocaleString()}{" "}
-                        people
+                        {reachMin.toLocaleString()}–{reachMax.toLocaleString()} people
                       </span>
                     </div>
                     <div className="border-t border-gray-100 pt-2 flex justify-between font-semibold">
                       <span className="text-[#111827]">Total</span>
                       <span className="text-[#365BEB] text-lg">
                         {fmt(totalCost)}
+                        {selectedProducts.length > 1 && (
+                          <span className="text-xs font-normal text-[#808080] ml-1">
+                            ({selectedProducts.length} products)
+                          </span>
+                        )}
                       </span>
                     </div>
                   </div>
@@ -509,7 +547,9 @@ export function PlaceAdModal({ open, onOpenChange, onAdPlaced }: PlaceAdModalPro
                 <p className="text-sm text-[#808080] mt-1 max-w-xs mx-auto">
                   Your ad for{" "}
                   <span className="font-medium text-[#4D4D4D]">
-                    {selectedProduct?.name}
+                    {selectedProducts.length === 1
+                      ? selectedProducts[0].name
+                      : `${selectedProducts.length} products`}
                   </span>{" "}
                   has been submitted and is pending review.
                 </p>

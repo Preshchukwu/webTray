@@ -391,3 +391,372 @@ export interface CancelSubscriptionResponse {
   status: "CANCELLED";
   message: string;
 }
+
+// Wallet Types
+export interface WalletBalance {
+  id: number;
+  storeId: number;
+  balance: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export type WalletTransactionType = "CREDIT" | "DEBIT";
+export type WalletTransactionStatus = "SUCCESS" | "PENDING" | "FAILED";
+
+export interface WalletTransaction {
+  id: number;
+  walletId: number;
+  type: WalletTransactionType;
+  amount: string;
+  status: WalletTransactionStatus;
+  reference: string;
+  description: string;
+  bankCode: string | null;
+  accountNumber: string | null;
+  accountName: string | null;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export interface WalletBankApi {
+  id: number;
+  name: string;
+  slug: string;
+  code: string;
+  longcode?: string;
+  active?: boolean;
+  country?: string;
+  currency?: string;
+  type?: string;
+  gateway?: string | null;
+  pay_with_bank?: boolean;
+  supports_transfer?: boolean;
+  available_for_direct_debit?: boolean;
+  is_deleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WalletBank extends WalletBankApi {
+  bankCode: string;
+}
+
+export interface WalletBankAccount {
+  id: number;
+  walletId?: number;
+  storeId?: number;
+  bankCode: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isDeleted?: boolean;
+}
+
+export interface ValidateAccountPayload {
+  accountNumber: string;
+  bankCode: string;
+}
+
+export interface ValidatedAccount {
+  accountName: string;
+  accountNumber: string;
+  bankCode: string;
+  bankId?: number;
+}
+
+export interface ValidatedAccountApi {
+  account_number?: string;
+  account_name?: string;
+  bank_id?: number;
+  accountNumber?: string;
+  accountName?: string;
+  bankCode?: string;
+  code?: string;
+  bank_name?: string;
+}
+
+export interface AddBankAccountPayload {
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  accountName: string;
+}
+
+export interface DeleteBankAccountResponse {
+  message: string;
+}
+
+export interface RequestWithdrawalPayload {
+  amount: number;
+  bankAccountId: number;
+}
+
+export interface WithdrawalResponseBody {
+  updatedWallet: WalletBalance;
+  transaction: WalletTransaction;
+}
+
+export interface WithdrawalResponse {
+  updatedWallet: WalletBalance;
+  transaction: WalletTransaction;
+}
+
+export interface InvoiceItemPayload {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+export interface CreateInvoicePayload {
+  customerName: string;
+  dueDate: string;
+  items: InvoiceItemPayload[];
+}
+
+export interface InvoiceItem {
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface InvoiceStore {
+  id: number;
+  storeName: string | null;
+  logoUrl: string | null;
+  email: string | null;
+  phone: string | null;
+  currency: string;
+}
+
+export interface Invoice {
+  id: number;
+  storeId: number;
+  invoiceNumber: string;
+  customerName: string;
+  dueDate: string;
+  items: InvoiceItem[];
+  totalAmount: string;
+  status: string;
+  slug: string;
+  paystackPageId: string | null;
+  paystackUrl: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  store: InvoiceStore;
+}
+
+export interface InvoicesMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface GetInvoicesResponse {
+  data: Invoice[];
+  meta: InvoicesMeta;
+}
+
+export interface PayInvoiceResponse {
+  authorizationUrl: string;
+  accessCode: string;
+  reference: string;
+}
+
+export interface VerifyInvoiceResponse {
+  verified: boolean;
+  amount: number;
+  invoice: Invoice;
+}
+
+export interface Notification {
+  id: number;
+  storeId?: number;
+  title?: string;
+  message: string;
+  isRead?: boolean;
+  type?: string;
+  link?: string | null;
+  isDeleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface NotificationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  unreadCount: number;
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[];
+  meta: NotificationMeta;
+}
+
+// Ad Types
+export interface AdProduct {
+  id: number;
+  storeId: number;
+  name: string;
+  description: string;
+  price: string;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
+  categoryId: number;
+  feature: boolean;
+  visible: boolean;
+  images: string[];
+  isDeleted: boolean;
+}
+
+export interface AdHistoryProduct {
+  name: string;
+  price: string;
+  images: string[];
+}
+
+export interface AdTransaction {
+  reference: string;
+  status: string;
+  amount: string;
+}
+
+export interface AdHistoryItem {
+  id: number;
+  adTransactionId: number;
+  productId: number;
+  days: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  product: AdHistoryProduct;
+  adTransaction: AdTransaction;
+}
+
+export interface AdOverview {
+  liveAds: number;
+  totalSpent: number;
+  totalReach: number;
+}
+
+export interface InitiateAdPayload {
+  storeId: number;
+  productIds: number[];
+  days: number;
+  callbackUrl: string;
+}
+
+export interface InitiateAdResponse {
+  authorization_url: string;
+  reference: string;
+}
+
+export interface VerifiedAdProductAd {
+  id: number;
+  adTransactionId: number;
+  productId: number;
+  days: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  product: AdProduct;
+}
+
+export interface VerifyAdResponse {
+  id: number;
+  storeId: number;
+  amount: string;
+  reference: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  paymentDetails: any;
+  productAds: VerifiedAdProductAd[];
+}
+
+export interface Review {
+  id: number;
+  productId: number;
+  customerId: number | null;
+  fullname: string;
+  email: string | null;
+  rating: number;
+  review: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export interface ReviewPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ReviewsResponse {
+  reviews: Review[];
+  pagination: ReviewPagination;
+}
+
+export interface ReviewsAggregateResponse {
+  productId: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
+export interface SubmitReviewPayload {
+  rating: number;
+  review: string;
+  fullname: string;
+}
+
+export interface StoreReview {
+  id: number;
+  storeId: number;
+  customerId: number | null;
+  fullname: string | null;
+  email: string | null;
+  rating: number;
+  review: string;
+  createdAt: string;
+  updatedAt: string;
+  isDeleted: boolean;
+}
+
+export interface StoreReviewsResponse {
+  reviews: StoreReview[];
+  pagination: ReviewPagination;
+}
+
+export interface StoreReviewsAggregateResponse {
+  storeId: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
+export interface SubmitStoreReviewPayload {
+  rating: number;
+  review: string;
+  fullname?: string;
+}
+
+
+
