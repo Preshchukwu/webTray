@@ -30,7 +30,7 @@ export default function Header() {
     { name: "Features", path: "/feature-page" },
     { name: "Pricing", path: "/pricing-page" },
     { name: "Vendors", path: "/vendors" },
-    { name: "Contact Us", path: "/contact-us-page" },
+    { name: "Contact Us", path: "/contact-us" },
   ]
   
 

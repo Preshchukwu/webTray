@@ -107,10 +107,10 @@ export const useProduct = () => {
       if (targetStoreId !== undefined) {
         invalidateStoreQueries(targetStoreId);
       }
-      toast.success("Product added successfully");
+      // Toast is handled by the caller (handleSubmitAll)
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to add product");
+    onError: () => {
+      // Toast is handled by the caller (handleSubmitAll)
     },
   });
 

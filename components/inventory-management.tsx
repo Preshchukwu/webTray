@@ -160,6 +160,7 @@ const handleSubmitAll = async () => {
   try {
     let successCount = 0;
     let failCount = 0;
+    let planLimitReached = false;
 
     for (const product of pendingProducts) {
       try {
@@ -179,10 +180,26 @@ const handleSubmitAll = async () => {
         }
 
         await addProduct(formData);
-        
+
         successCount++;
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`Failed to add product ${product.name}:`, error);
+
+        // Extract the backend error message from Axios response
+        const axiosError = error as { response?: { data?: { responseMessage?: string }; status?: number } ; message?: string };
+        const backendMessage =
+          axiosError?.response?.data?.responseMessage ||
+          axiosError?.message ||
+          "Failed to add product";
+
+        toast.error(backendMessage);
+
+        // Stop processing the queue if the plan limit has been reached
+        const isPlanLimit = backendMessage.toLowerCase().includes("limit") || backendMessage.toLowerCase().includes("upgrade");
+        if (isPlanLimit) {
+          planLimitReached = true;
+          break;
+        }
         failCount++;
       }
     }
@@ -191,14 +208,10 @@ const handleSubmitAll = async () => {
       toast.success(`${successCount} product(s) added successfully`);
     }
 
-    if (failCount > 0) {
-      toast.error(`${failCount} product(s) failed to add`);
-    }
-
     if (successCount === pendingProducts.length) {
       setPendingProducts([]);
       setIsOpen(false);
-    } else {
+    } else if (!planLimitReached) {
       setPendingProducts((prev) => prev.slice(successCount));
     }
   } catch (error) {

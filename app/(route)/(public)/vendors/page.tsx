@@ -123,7 +123,7 @@ function VendorCard({ vendor }: { vendor: typeof vendors[number] }) {
 
   return (
     <Link
-      href={`/store/${vendor.slug}`}
+      href={vendor.slug}
       className="group block bg-white rounded-[20px] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
     >
       {/* Gradient banner */}
