@@ -1,5 +1,6 @@
 "use client";
 
+
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import { Star, Coffee, Store } from "lucide-react";
