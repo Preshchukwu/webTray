@@ -126,7 +126,7 @@ export function AdsClient() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-3 sm:overflow-visible">
         {[
           {
             label: "Live Ads",
@@ -146,7 +146,7 @@ export function AdsClient() {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="rounded-[24px] border border-gray-200 shadow-sm p-5 bg-white"
+            className="min-w-[72%] shrink-0 snap-start rounded-[24px] border border-gray-200 shadow-sm p-5 bg-white sm:min-w-0 sm:shrink sm:w-auto"
           >
             <div className="flex items-center gap-2 text-[#808080] mb-2">
               {stat.icon}

@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
@@ -156,63 +157,64 @@ function ServicesSection() {
         </Button>
       }
     >
-      <div className="space-y-3">
-        {services.map((s) => (
-          <div key={s.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50/50 group">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+      {services.length > 0 && (
+        <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-6 -mx-6 px-6 pb-1 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-2 sm:overflow-visible">
+          {services.map((s) => (
+            <div
+              key={s.id}
+              className="min-w-[62%] shrink-0 snap-start relative p-4 rounded-2xl border border-gray-100 bg-gray-50/50 group sm:min-w-0 sm:shrink"
+            >
+              <button
+                onClick={() => removeService(s.id)}
+                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg text-red-400 hover:bg-red-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
                 <DollarSign className="w-4 h-4 text-[#365BEB]" />
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-[#111827] truncate">{s.title}</p>
-                <div className="flex items-center gap-3 text-xs text-[#808080]">
-                  <span>₦{s.price.toLocaleString()}</span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {s.deliveryDays} days
-                  </span>
-                </div>
+              <p className="text-sm font-medium text-[#111827] truncate pr-5">{s.title}</p>
+              <div className="flex items-center gap-3 text-xs text-[#808080] mt-1">
+                <span>₦{s.price.toLocaleString()}</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> {s.deliveryDays} days
+                </span>
               </div>
             </div>
-            <button
-              onClick={() => removeService(s.id)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg text-red-400 hover:bg-red-50"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
-        {adding && (
-          <div className="p-4 rounded-xl border border-[#365BEB]/30 bg-blue-50/30 space-y-3">
+      {adding && (
+        <div className={cn("p-4 rounded-xl border border-[#365BEB]/30 bg-blue-50/30 space-y-3", services.length > 0 && "mt-3")}>
+          <input
+            placeholder="Service title"
+            value={newService.title}
+            onChange={(e) => setNewService((p) => ({ ...p, title: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#365BEB]/20 focus:border-[#365BEB]"
+          />
+          <div className="grid grid-cols-2 gap-3">
             <input
-              placeholder="Service title"
-              value={newService.title}
-              onChange={(e) => setNewService((p) => ({ ...p, title: e.target.value }))}
+              placeholder="Price (₦)"
+              type="number"
+              value={newService.price}
+              onChange={(e) => setNewService((p) => ({ ...p, price: e.target.value }))}
               className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#365BEB]/20 focus:border-[#365BEB]"
             />
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                placeholder="Price (₦)"
-                type="number"
-                value={newService.price}
-                onChange={(e) => setNewService((p) => ({ ...p, price: e.target.value }))}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#365BEB]/20 focus:border-[#365BEB]"
-              />
-              <input
-                placeholder="Delivery (days)"
-                type="number"
-                value={newService.deliveryDays}
-                onChange={(e) => setNewService((p) => ({ ...p, deliveryDays: e.target.value }))}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#365BEB]/20 focus:border-[#365BEB]"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" className="rounded-full bg-[#365BEB] hover:bg-[#2d4fd6] text-white text-xs px-4" onClick={addService}>Save</Button>
-              <Button size="sm" variant="outline" className="rounded-full text-xs px-4" onClick={() => setAdding(false)}>Cancel</Button>
-            </div>
+            <input
+              placeholder="Delivery (days)"
+              type="number"
+              value={newService.deliveryDays}
+              onChange={(e) => setNewService((p) => ({ ...p, deliveryDays: e.target.value }))}
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#365BEB]/20 focus:border-[#365BEB]"
+            />
           </div>
-        )}
-      </div>
+          <div className="flex gap-2">
+            <Button size="sm" className="rounded-full bg-[#365BEB] hover:bg-[#2d4fd6] text-white text-xs px-4" onClick={addService}>Save</Button>
+            <Button size="sm" variant="outline" className="rounded-full text-xs px-4" onClick={() => setAdding(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
     </SectionCard>
   )
 }

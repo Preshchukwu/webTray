@@ -19,12 +19,12 @@ export function SectionCards() {
           subtitle="Manage your products and track stock levels"
         />
 
-        <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-4 px-4 pb-1 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
           {/* Loading skeleton cards */}
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="p-6 border rounded-lg bg-card animate-pulse"
+              className="min-w-[72%] shrink-0 snap-start p-6 border rounded-2xl bg-card animate-pulse sm:min-w-[300px] md:min-w-0 md:w-auto md:shrink"
             >
               <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
               <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -90,9 +90,14 @@ export function SectionCards() {
         title="Overview"
         subtitle="Manage your products and track stock levels"
       />
-      <div className="grid mt-6 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 -mx-4 px-4 pb-1 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4">
         {stats.map((stat, i) => (
-          <StatCard key={i} {...stat} />
+          <div
+            key={i}
+            className="min-w-[72%] shrink-0 snap-start rounded-2xl border border-gray-100 shadow-sm sm:min-w-[300px] md:min-w-0 md:w-auto md:shrink md:border-0 md:shadow-none"
+          >
+            <StatCard {...stat} />
+          </div>
         ))}
       </div>
     </div>

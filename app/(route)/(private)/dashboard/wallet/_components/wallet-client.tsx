@@ -708,13 +708,17 @@ export function WalletClient() {
       )}
 
 
-      <div className="flex flex-col gap-6">
-        <WithdrawalBankAccounts
-          className="w-full"
-          addDialogOpen={addBankDialogOpen}
-          onAddDialogOpenChange={setAddBankDialogOpen}
-        />
-        <InvoiceSection />
+      <div className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 -mx-4 px-4 pb-1 md:mx-0 md:flex-col md:gap-6 md:overflow-visible md:px-0 md:pb-0">
+        <div className="min-w-[88%] shrink-0 snap-start md:min-w-0 md:w-full md:shrink">
+          <WithdrawalBankAccounts
+            className="w-full"
+            addDialogOpen={addBankDialogOpen}
+            onAddDialogOpenChange={setAddBankDialogOpen}
+          />
+        </div>
+        <div className="min-w-[88%] shrink-0 snap-start md:min-w-0 md:w-full md:shrink">
+          <InvoiceSection />
+        </div>
       </div>
 
       <TransactionHistory />
